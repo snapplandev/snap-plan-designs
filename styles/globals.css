@@ -215,3 +215,316 @@ p {
   background-color: var(--accent);
   color: #ffffff;
 }
+
+.auth-shell {
+  min-height: 100dvh;
+  padding: clamp(2rem, 6vw, 5rem) clamp(1.25rem, 4vw, 2.5rem);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 15% 15%, color-mix(in oklab, var(--accent-soft) 28%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 88% 84%, color-mix(in oklab, var(--accent-soft) 22%, transparent) 0%, transparent 46%),
+    var(--bg);
+}
+
+.auth-panel {
+  width: min(100%, 34rem);
+  background: var(--panel);
+  border: 1px solid color-mix(in oklab, var(--border) 78%, white);
+  padding: clamp(1.6rem, 3.6vw, 2.7rem);
+  display: grid;
+  gap: 1rem;
+  box-shadow: 0 10px 36px color-mix(in oklab, black 6%, transparent);
+}
+
+.auth-kicker {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.auth-title {
+  font-size: clamp(2rem, 5.3vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.auth-subtitle {
+  color: var(--text-muted);
+  max-width: 34ch;
+}
+
+.auth-form {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 1.05rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.auth-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-input {
+  width: 100%;
+  appearance: none;
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  background-color: color-mix(in oklab, var(--panel) 92%, var(--bg));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.35;
+  padding: 0.76rem 0.82rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.auth-input:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--accent) 52%, white);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--accent-soft) 40%, white),
+    0 0 0 4px color-mix(in oklab, var(--accent) 25%, white);
+  background-color: var(--panel);
+}
+
+.auth-actions {
+  margin-top: 0.45rem;
+}
+
+.auth-actions .button {
+  width: 100%;
+  justify-content: center;
+}
+
+.auth-message {
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  padding: 0.68rem 0.82rem;
+  font-size: 0.94rem;
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--panel) 92%, var(--bg));
+}
+
+.auth-message--error {
+  border-color: color-mix(in oklab, var(--accent) 40%, white);
+}
+
+.auth-message--success {
+  border-color: color-mix(in oklab, var(--success) 45%, white);
+}
+
+.auth-footnote {
+  margin-top: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.auth-footnote a {
+  color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+
+/* project dashboard */
+.projects-dashboard {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3.5rem);
+}
+
+.projects-dashboard__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 0.8fr);
+  align-items: end;
+  gap: 2rem clamp(1.25rem, 3vw, 3rem);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 76%, white);
+}
+
+.projects-dashboard__intro {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 50rem;
+}
+
+.projects-dashboard__title {
+  font-size: clamp(2.4rem, 4.8vw, 4.25rem);
+  line-height: 0.94;
+  letter-spacing: 0.01em;
+}
+
+.projects-dashboard__subhead {
+  color: var(--text-muted);
+  max-width: 44ch;
+  font-size: 1.04rem;
+}
+
+.projects-dashboard__cta {
+  justify-self: end;
+}
+
+.projects-dashboard__list {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.project-status-pill {
+  --pill-border: color-mix(in oklab, var(--border) 85%, white);
+  --pill-bg: color-mix(in oklab, var(--panel) 90%, var(--bg));
+  --pill-text: color-mix(in oklab, var(--text-primary) 88%, white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8.75rem;
+  padding: 0.33rem 0.62rem;
+  border: 1px solid var(--pill-border);
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  font-size: 0.69rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.project-status-pill--draft {
+  --pill-bg: color-mix(in oklab, var(--bg) 70%, var(--panel));
+}
+
+.project-status-pill--submitted {
+  --pill-bg: color-mix(in oklab, var(--accent-soft) 28%, var(--panel));
+  --pill-border: color-mix(in oklab, var(--accent-soft) 64%, var(--border));
+}
+
+.project-status-pill--in_review,
+.project-status-pill--in_progress {
+  --pill-bg: color-mix(in oklab, var(--accent) 10%, var(--panel));
+  --pill-border: color-mix(in oklab, var(--accent) 23%, var(--border));
+  --pill-text: color-mix(in oklab, var(--accent) 72%, var(--text-primary));
+}
+
+.project-status-pill--delivered,
+.project-status-pill--closed {
+  --pill-bg: color-mix(in oklab, var(--success) 10%, var(--panel));
+  --pill-border: color-mix(in oklab, var(--success) 32%, var(--border));
+  --pill-text: color-mix(in oklab, var(--success) 72%, var(--text-primary));
+}
+
+.project-folio {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  box-shadow: 0 8px 24px color-mix(in oklab, black 4%, transparent);
+  padding: clamp(1.15rem, 2.5vw, 1.75rem) clamp(1.2rem, 2.7vw, 1.9rem);
+  display: grid;
+  gap: 0.9rem;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.project-folio:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--accent-soft) 54%, var(--border));
+  box-shadow: 0 14px 30px color-mix(in oklab, black 8%, transparent);
+}
+
+.project-folio:focus-within {
+  border-color: color-mix(in oklab, var(--accent) 26%, var(--border));
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--accent-soft) 30%, white),
+    0 12px 30px color-mix(in oklab, black 8%, transparent);
+}
+
+.project-folio__edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: color-mix(in oklab, var(--accent) 82%, black);
+}
+
+.project-folio__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.project-folio__updated {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.project-folio__content {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.project-folio__title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.65rem, 2.8vw, 2.2rem);
+  line-height: 1.03;
+  letter-spacing: 0.01em;
+}
+
+.project-folio__subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+.project-folio__rule {
+  width: 100%;
+  height: 1px;
+  background: color-mix(in oklab, var(--border) 85%, white);
+}
+
+.project-folio__actions .button {
+  min-width: 12.2rem;
+}
+
+.project-empty {
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  background: var(--panel);
+  padding: clamp(2rem, 4vw, 3rem);
+  display: grid;
+  gap: 0.95rem;
+  justify-items: start;
+}
+
+.project-empty__title {
+  font-size: clamp(2rem, 3.6vw, 2.8rem);
+  line-height: 1.02;
+}
+
+.project-empty__body {
+  color: var(--text-muted);
+  max-width: 52ch;
+}
+
+.project-empty__action {
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 900px) {
+  .projects-dashboard__header {
+    grid-template-columns: 1fr;
+  }
+
+  .projects-dashboard__cta {
+    justify-self: start;
+  }
+}

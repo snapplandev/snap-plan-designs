@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function MarketingPage() {
   return (
     <main style={{ minHeight: "100vh", padding: "5rem 1.5rem" }}>
@@ -20,6 +22,10 @@ export default function MarketingPage() {
           }}
         />
         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>Architect&apos;s Study</h1>
+        <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.75rem" }}>
+          <Link href="/login">Login</Link>
+          <Link href="/signup">Signup</Link>
+        </div>
       </section>
     </main>
   );

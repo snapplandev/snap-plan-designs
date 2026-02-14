@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-
-function notImplementedResponse() {
+function notImplementedResponse(): NextResponse {
   return NextResponse.json({ error: "Not implemented" }, { status: 501 });
 }
 
-export async function GET() {
+export async function POST(): Promise<NextResponse> {
   return notImplementedResponse();
 }
 
-export async function POST() {
+export async function GET(): Promise<NextResponse> {
   return notImplementedResponse();
 }
