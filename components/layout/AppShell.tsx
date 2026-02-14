@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { hasSupabasePublicEnv } from "@/lib/supabase/env-public";
+import { isDemoMode } from "@/lib/runtime/mode";
 
 type AppShellProps = Readonly<{
   children: React.ReactNode;
@@ -11,7 +11,7 @@ type AppShellProps = Readonly<{
  * Edge case: header navigation wraps on narrow widths without truncating links.
  */
 export default function AppShell({ children }: AppShellProps) {
-  const isDemoMode = !hasSupabasePublicEnv();
+  const demoMode = isDemoMode();
 
   return (
     <div className="app-shell">
@@ -37,7 +37,7 @@ export default function AppShell({ children }: AppShellProps) {
 
       <main className="app-shell__main" id="main-content">
         <div className="app-shell__container">
-          {isDemoMode ? (
+          {demoMode ? (
             <p className="app-shell__demo-banner" role="status">
               Demo mode — authentication and storage will activate once Supabase is configured.
             </p>

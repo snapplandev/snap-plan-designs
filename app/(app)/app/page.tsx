@@ -3,6 +3,7 @@ import Link from "next/link";
 import EmptyState from "@/components/projects/EmptyState";
 import ProjectCard from "@/components/projects/ProjectCard";
 import type { ProjectStatus } from "@/components/projects/ProjectStatusPill";
+import { isDemoMode } from "@/lib/runtime/mode";
 
 type MockProject = {
   id: string;
@@ -47,12 +48,20 @@ const mockProjects: MockProject[] = [
 
 export default function AppPage() {
   const projectsToRender = SHOW_EMPTY_STATE ? [] : mockProjects;
+  const demoMode = isDemoMode();
 
   return (
     <section className="projects-dashboard" aria-label="Client projects dashboard">
       <header className="projects-dashboard__header">
         <div className="projects-dashboard__intro">
-          <h1 className="projects-dashboard__title">Projects</h1>
+          <div className="projects-dashboard__title-row">
+            <h1 className="projects-dashboard__title">Projects</h1>
+            {demoMode ? (
+              <span aria-label="Demo data" className="runtime-badge runtime-badge--demo" role="status">
+                Demo
+              </span>
+            ) : null}
+          </div>
           <p className="projects-dashboard__subhead">
             Your planning workspace — organized, versioned, contractor-ready.
           </p>

@@ -10,6 +10,7 @@ import ProjectTabs, { type ProjectWorkspaceTab } from "@/components/projects/Pro
 import RevisionsPanel from "@/components/projects/RevisionsPanel";
 import type { ProjectStatus } from "@/components/projects/ProjectStatusPill";
 import StatusTimeline from "@/components/projects/StatusTimeline";
+import { isDemoMode } from "@/lib/runtime/mode";
 
 type WorkspaceProject = {
   id: string;
@@ -104,6 +105,7 @@ const PRIMARY_ACTION_FEEDBACK: Record<ProjectStatus, string> = {
 export default function ProjectWorkspacePage({ params }: PageProps) {
   const [activeTab, setActiveTab] = useState<ProjectWorkspaceTab>("overview");
   const [notice, setNotice] = useState<string | null>(null);
+  const demoMode = isDemoMode();
 
   const project = useMemo(() => PROJECTS_BY_ID[params.id], [params.id]);
 
@@ -123,6 +125,15 @@ export default function ProjectWorkspacePage({ params }: PageProps) {
 
   return (
     <section className="project-workspace" aria-label={`Project workspace for ${project.title}`}>
+      {demoMode ? (
+        <p className="project-workspace__demo-note" role="status">
+          <span aria-label="Demo data" className="runtime-badge runtime-badge--demo">
+            Demo
+          </span>
+          Local sample project data is shown.
+        </p>
+      ) : null}
+
       <ProjectHeader
         location={project.location}
         onPrimaryAction={() => setNotice(PRIMARY_ACTION_FEEDBACK[project.status])}
