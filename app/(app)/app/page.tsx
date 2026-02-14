@@ -16,28 +16,28 @@ const SHOW_EMPTY_STATE = false;
 
 const mockProjects: MockProject[] = [
   {
-    id: "proj-001",
+    id: "1",
     title: "North Shore Residence",
     location: "Evanston, IL",
-    status: "draft",
+    status: "in_progress",
     updatedAt: "2026-02-12",
   },
   {
-    id: "proj-002",
+    id: "2",
     title: "Hudson Brownstone",
     location: "Brooklyn, NY",
     status: "submitted",
     updatedAt: "2026-02-10",
   },
   {
-    id: "proj-003",
+    id: "3",
     title: "Canyon Guest Pavilion",
     location: "Scottsdale, AZ",
     status: "in_review",
     updatedAt: "2026-02-08",
   },
   {
-    id: "proj-004",
+    id: "4",
     title: "Seaboard Atelier",
     location: "Charleston, SC",
     status: "delivered",
@@ -72,6 +72,11 @@ export default function AppPage() {
           projectsToRender.map((project) => (
             <div key={project.id} role="listitem">
               <ProjectCard
+                projectHref={
+                  project.status === "in_review" || project.status === "in_progress" || project.status === "closed"
+                    ? `/app/projects/${project.id}`
+                    : undefined
+                }
                 title={project.title}
                 location={project.location}
                 status={project.status}

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import Button from "@/components/ui/Button";
 import ProjectStatusPill, { type ProjectStatus } from "@/components/projects/ProjectStatusPill";
 
@@ -6,6 +8,7 @@ type ProjectCardProps = Readonly<{
   location: string;
   status: ProjectStatus;
   updatedAt: string;
+  projectHref?: string;
 }>;
 
 const CTA_LABELS: Record<ProjectStatus, string> = {
@@ -35,7 +38,7 @@ function formatDate(updatedAt: string): string {
  * Refined folio panel for a single client project.
  * Edge case: malformed dates degrade to a neutral "Recently" label.
  */
-export default function ProjectCard({ title, location, status, updatedAt }: ProjectCardProps) {
+export default function ProjectCard({ title, location, status, updatedAt, projectHref }: ProjectCardProps) {
   return (
     <article className="project-folio" aria-label={`Project ${title}`}>
       <div aria-hidden="true" className="project-folio__edge" />
@@ -53,7 +56,17 @@ export default function ProjectCard({ title, location, status, updatedAt }: Proj
       <div className="project-folio__rule" aria-hidden="true" />
 
       <div className="project-folio__actions">
-        <Button aria-label={`${CTA_LABELS[status]} for ${title}`}>{CTA_LABELS[status]}</Button>
+        {projectHref ? (
+          <Link
+            aria-label={`${CTA_LABELS[status]} for ${title}`}
+            className="button button--primary"
+            href={projectHref}
+          >
+            {CTA_LABELS[status]}
+          </Link>
+        ) : (
+          <Button aria-label={`${CTA_LABELS[status]} for ${title}`}>{CTA_LABELS[status]}</Button>
+        )}
       </div>
     </article>
   );

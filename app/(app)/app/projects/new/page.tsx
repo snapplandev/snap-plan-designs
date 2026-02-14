@@ -276,7 +276,7 @@ export default function NewProjectPage() {
       window.clearTimeout(redirectTimerRef.current);
     }
     redirectTimerRef.current = window.setTimeout(() => {
-      router.push("/app");
+      router.push("/app/projects/1");
     }, REDIRECT_DELAY_MS);
   };
 
