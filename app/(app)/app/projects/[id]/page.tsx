@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -22,27 +22,12 @@ import { isDemoMode } from "@/lib/runtime/mode";
 
 const PRIMARY_ACTION_FEEDBACK: Record<ProjectStatus, string> = {
   draft: "Draft session reopened. Continue refining intake fields.",
-  submitted: "Submitted package loaded. Review details before next step.",
+  submitted: "Checkout is now available for this submitted intake.",
   in_review: "Studio review note panel opened in local workspace context.",
   in_progress: "Reference upload action prepared for this project.",
   delivered: "Deliverables are ready for download and archival.",
   closed: "Project archive view prepared in this workspace.",
 };
-
-function buildSummaryHighlights(projectDetails: ProjectDetails): string[] {
-  const { summary } = projectDetails;
-  const candidateHighlights = [
-    summary.goals ? `Primary goal: ${summary.goals}` : null,
-    summary.mustHaves ? `Must-have: ${summary.mustHaves}` : null,
-    summary.constraints ? `Constraint: ${summary.constraints}` : null,
-    summary.dimensions ? `Known dimensions: ${summary.dimensions}` : null,
-    summary.ceilingHeight ? `Ceiling height: ${summary.ceilingHeight}` : null,
-    summary.measurementNotes ? `Measurement notes: ${summary.measurementNotes}` : null,
-  ];
-
-  const highlights = candidateHighlights.filter((value): value is string => value !== null);
-  return highlights.length > 0 ? highlights : ["No intake highlights are available yet."];
-}
 
 /**
  * Project workspace page reading and mutating state via the data adapter.
@@ -110,13 +95,6 @@ export default function ProjectWorkspacePage() {
     [loadProject],
   );
 
-  const summaryHighlights = useMemo(() => {
-    if (!projectDetails) {
-      return [];
-    }
-    return buildSummaryHighlights(projectDetails);
-  }, [projectDetails]);
-
   if (projectDetails === undefined) {
     if (loadError) {
       return (
@@ -175,6 +153,7 @@ export default function ProjectWorkspacePage() {
       <ProjectHeader
         location={project.location}
         onPrimaryAction={() => setNotice(PRIMARY_ACTION_FEEDBACK[project.status])}
+        projectId={project.id}
         propertyType={project.propertyType}
         status={project.status}
         title={project.title}
@@ -203,17 +182,45 @@ export default function ProjectWorkspacePage() {
                 <header className="workspace-panel__header">
                   <h2 className="workspace-panel__title">Project Summary</h2>
                   <p className="workspace-panel__subtitle">
-                    Intake highlights captured for the studio team.
+                    Intake details captured during submission.
                   </p>
+                  {project.status === "draft" ? (
+                    <Link
+                      aria-label={`Continue intake for ${project.title}`}
+                      className="button button--ghost"
+                      href={`/app/projects/new?projectId=${project.id}`}
+                    >
+                      Continue Intake
+                    </Link>
+                  ) : null}
                 </header>
 
-                <ul className="project-workspace-overview__summary-list">
-                  {summaryHighlights.map((highlight) => (
-                    <li className="project-workspace-overview__summary-item" key={highlight}>
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
+                <dl className="project-workspace-overview__package-list">
+                  <div className="project-workspace-overview__package-row">
+                    <dt>Goals</dt>
+                    <dd>{projectDetails.summary.goals || "Not provided"}</dd>
+                  </div>
+                  <div className="project-workspace-overview__package-row">
+                    <dt>Constraints</dt>
+                    <dd>{projectDetails.summary.constraints || "Not provided"}</dd>
+                  </div>
+                  <div className="project-workspace-overview__package-row">
+                    <dt>Must-haves</dt>
+                    <dd>{projectDetails.summary.mustHaves || "Not provided"}</dd>
+                  </div>
+                  <div className="project-workspace-overview__package-row">
+                    <dt>Dimensions</dt>
+                    <dd>{projectDetails.summary.dimensions || "Not provided"}</dd>
+                  </div>
+                  <div className="project-workspace-overview__package-row">
+                    <dt>Ceiling height</dt>
+                    <dd>{projectDetails.summary.ceilingHeight || "Not provided"}</dd>
+                  </div>
+                  <div className="project-workspace-overview__package-row">
+                    <dt>Measurement notes</dt>
+                    <dd>{projectDetails.summary.measurementNotes || "Not provided"}</dd>
+                  </div>
+                </dl>
               </article>
 
               <article className="workspace-panel workspace-panel--package">

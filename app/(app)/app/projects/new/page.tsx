@@ -7,7 +7,7 @@ import Field from "@/components/intake/Field";
 import StepHeader from "@/components/intake/StepHeader";
 import WizardShell from "@/components/intake/WizardShell";
 import Button from "@/components/ui/Button";
-import { createProjectDraft } from "@/lib/data/client";
+import { createProjectDraft, getProjectById, submitIntake, type SubmitIntakePayload } from "@/lib/data/client";
 import type { ProjectFileInput } from "@/lib/data/types";
 
 type PropertyType = "" | "remodel" | "basement" | "addition" | "other";
@@ -26,6 +26,7 @@ type IntakeFormFields = {
 };
 
 type IntakeState = {
+  projectId: string | null;
   currentStep: number;
   fields: IntakeFormFields;
   files: File[];
@@ -35,6 +36,13 @@ type IntakeState = {
 };
 
 type IntakeAction =
+  | {
+      type: "HYDRATE_FROM_PROJECT";
+      projectId: string;
+      fields: IntakeFormFields;
+      notice: string | null;
+    }
+  | { type: "SET_PROJECT_ID"; projectId: string }
   | { type: "UPDATE_FIELD"; field: keyof IntakeFormFields; value: string }
   | { type: "NEXT_STEP" }
   | { type: "PREVIOUS_STEP" }
@@ -67,8 +75,8 @@ const WIZARD_STEPS = [
   },
   {
     id: "review",
-    title: "Review",
-    guidance: "Confirm details before sending your intake to the project dashboard.",
+    title: "Submit Intake",
+    guidance: "Confirm details and submit so your project moves into checkout-ready status.",
   },
 ] as const;
 
@@ -79,6 +87,7 @@ const ACCEPTED_FILE_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "imag
 const ACCEPTED_FILE_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png"];
 
 const INITIAL_STATE: IntakeState = {
+  projectId: null,
   currentStep: 0,
   fields: {
     title: "",
@@ -104,6 +113,18 @@ const INITIAL_STATE: IntakeState = {
  */
 function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
   switch (action.type) {
+    case "HYDRATE_FROM_PROJECT":
+      return {
+        ...state,
+        projectId: action.projectId,
+        fields: action.fields,
+        notice: action.notice,
+      };
+    case "SET_PROJECT_ID":
+      return {
+        ...state,
+        projectId: action.projectId,
+      };
     case "UPDATE_FIELD":
       return {
         ...state,
@@ -195,6 +216,24 @@ function formatFileSize(fileSizeInBytes: number): string {
   return `${(fileSizeInBytes / mebibyte).toFixed(1)} MB`;
 }
 
+function mapPropertyType(rawValue: string): PropertyType {
+  const normalizedValue = rawValue.trim().toLowerCase();
+  if (
+    normalizedValue === "remodel" ||
+    normalizedValue === "basement" ||
+    normalizedValue === "addition" ||
+    normalizedValue === "other"
+  ) {
+    return normalizedValue;
+  }
+  return normalizedValue.length > 0 ? "other" : "";
+}
+
+function parseLocation(value: string): { city: string; state: string } {
+  const [city = "", state = ""] = value.split(",", 2).map((part) => part.trim());
+  return { city, state };
+}
+
 /**
  * New project intake wizard page bound to the data adapter create action.
  * Edge case: failed adapter writes keep the user on review step with an actionable error.
@@ -202,6 +241,7 @@ function formatFileSize(fileSizeInBytes: number): string {
 export default function NewProjectPage() {
   const router = useRouter();
   const redirectTimerRef = useRef<number | null>(null);
+  const hydratedProjectIdRef = useRef<string | null>(null);
   const [state, dispatch] = useReducer(intakeReducer, INITIAL_STATE);
 
   const isCurrentStepComplete = isStepComplete(state.currentStep, state.fields);
@@ -212,6 +252,47 @@ export default function NewProjectPage() {
       if (redirectTimerRef.current !== null) {
         window.clearTimeout(redirectTimerRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const existingProjectId = new URLSearchParams(window.location.search).get("projectId")?.trim() ?? "";
+    if (existingProjectId.length === 0 || hydratedProjectIdRef.current === existingProjectId) {
+      return;
+    }
+
+    let isMounted = true;
+    hydratedProjectIdRef.current = existingProjectId;
+
+    const hydrateFromExistingProject = async () => {
+      const existingProject = await getProjectById(existingProjectId);
+      if (!isMounted || !existingProject) {
+        return;
+      }
+
+      const parsedLocation = parseLocation(existingProject.project.location);
+      dispatch({
+        type: "HYDRATE_FROM_PROJECT",
+        projectId: existingProject.project.id,
+        fields: {
+          title: existingProject.project.title,
+          propertyType: mapPropertyType(existingProject.project.propertyType),
+          city: parsedLocation.city,
+          state: parsedLocation.state,
+          goals: existingProject.summary.goals,
+          constraints: existingProject.summary.constraints,
+          mustHaves: existingProject.summary.mustHaves,
+          dimensions: existingProject.summary.dimensions,
+          ceilingHeight: existingProject.summary.ceilingHeight,
+          measurementNotes: existingProject.summary.measurementNotes,
+        },
+        notice: "Loaded draft intake. Continue editing and submit when ready.",
+      });
+    };
+
+    void hydrateFromExistingProject();
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -280,8 +361,26 @@ export default function NewProjectPage() {
         size: file.size,
         mimeType: file.type || "Unknown type",
       }));
+      let projectId = state.projectId;
+      if (!projectId) {
+        const project = await createProjectDraft({
+          title: state.fields.title,
+          propertyType: state.fields.propertyType,
+          city: state.fields.city,
+          state: state.fields.state,
+          goals: "",
+          constraints: "",
+          mustHaves: "",
+          dimensions: "",
+          ceilingHeight: "",
+          measurementNotes: "",
+          files: [],
+        });
+        projectId = project.id;
+        dispatch({ type: "SET_PROJECT_ID", projectId });
+      }
 
-      const project = await createProjectDraft({
+      const intakePayload: SubmitIntakePayload = {
         title: state.fields.title,
         propertyType: state.fields.propertyType,
         city: state.fields.city,
@@ -293,21 +392,25 @@ export default function NewProjectPage() {
         ceilingHeight: state.fields.ceilingHeight,
         measurementNotes: state.fields.measurementNotes,
         files: uploadedFiles,
-      });
+      };
+      const submittedProject = await submitIntake(projectId, intakePayload);
+      if (!submittedProject) {
+        throw new Error("Project could not be submitted.");
+      }
 
       if (redirectTimerRef.current !== null) {
         window.clearTimeout(redirectTimerRef.current);
       }
       redirectTimerRef.current = window.setTimeout(() => {
-        router.push(`/app/projects/${project.id}`);
+        router.push(`/app/projects/${projectId}`);
       }, REDIRECT_DELAY_MS);
     } catch (error) {
       dispatch({
         type: "SET_NOTICE",
         notice:
           error instanceof Error
-            ? `Unable to create project: ${error.message}`
-            : "Unable to create project. Please try again.",
+            ? `Unable to submit intake: ${error.message}`
+            : "Unable to submit intake. Please try again.",
       });
       dispatch({ type: "SET_SUBMIT_PENDING", submitPending: false });
     }

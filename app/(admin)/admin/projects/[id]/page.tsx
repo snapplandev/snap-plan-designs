@@ -6,10 +6,11 @@ import { useParams } from "next/navigation";
 
 import ProjectStatusPill from "@/components/projects/ProjectStatusPill";
 import {
+  addDeliverable,
   addFiles,
   addMessage,
   getProjectById,
-  updateProjectStatus,
+  setProjectStatus,
   updateRevisionStatus,
 } from "@/lib/data/client";
 import type {
@@ -106,9 +107,28 @@ export default function AdminProjectPage() {
 
     setStatusPending(true);
     try {
-      await updateProjectStatus(projectDetails.project.id, nextStatus);
+      await setProjectStatus(projectDetails.project.id, nextStatus);
       await loadProject();
       setNotice(`Project status updated to ${nextStatus.replace("_", " ")}.`);
+    } finally {
+      setStatusPending(false);
+    }
+  };
+
+  const handleMarkDelivered = async () => {
+    if (!projectDetails || statusPending) {
+      return;
+    }
+
+    setStatusPending(true);
+    try {
+      await addDeliverable(projectDetails.project.id, {
+        name: "SnapPlan_Layout_v1.pdf",
+        size: 412_000,
+        mimeType: "application/pdf",
+      });
+      await loadProject();
+      setNotice("Project marked delivered and demo deliverable attached.");
     } finally {
       setStatusPending(false);
     }
@@ -245,6 +265,38 @@ export default function AdminProjectPage() {
               </option>
             ))}
           </select>
+          <div className="admin-ops-panel__actions">
+            <button
+              className="button button--ghost"
+              disabled={statusPending}
+              onClick={() => {
+                void handleStatusChange("in_review");
+              }}
+              type="button"
+            >
+              Mark In Review
+            </button>
+            <button
+              className="button button--ghost"
+              disabled={statusPending}
+              onClick={() => {
+                void handleStatusChange("in_progress");
+              }}
+              type="button"
+            >
+              Mark In Progress
+            </button>
+            <button
+              className="button button--primary"
+              disabled={statusPending}
+              onClick={() => {
+                void handleMarkDelivered();
+              }}
+              type="button"
+            >
+              Mark Delivered
+            </button>
+          </div>
 
           <dl className="admin-ops-panel__meta">
             <div>

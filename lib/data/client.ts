@@ -60,10 +60,14 @@ function cloneProjectFile(projectFile: ProjectFile): ProjectFile {
   return { ...projectFile };
 }
 
+function cloneProjectSummary(summary: ProjectDetails["summary"]): ProjectDetails["summary"] {
+  return { ...summary };
+}
+
 function cloneProjectDetails(projectDetails: ProjectDetails): ProjectDetails {
   return {
     project: cloneProject(projectDetails.project),
-    summary: { ...projectDetails.summary },
+    summary: cloneProjectSummary(projectDetails.summary),
     packageDetails: { ...projectDetails.packageDetails },
     messages: projectDetails.messages.map(cloneMessage),
     revisions: projectDetails.revisions.map(cloneRevision),
@@ -166,6 +170,22 @@ function normalizeIncomingFiles(
     }));
 }
 
+function buildSummaryFromIntakeInput(
+  input: Pick<
+    CreateProjectDraftInput,
+    "goals" | "constraints" | "mustHaves" | "dimensions" | "ceilingHeight" | "measurementNotes"
+  >,
+): ProjectDetails["summary"] {
+  return {
+    goals: normalizeText(input.goals),
+    constraints: normalizeText(input.constraints),
+    mustHaves: normalizeText(input.mustHaves),
+    dimensions: normalizeText(input.dimensions),
+    ceilingHeight: normalizeText(input.ceilingHeight),
+    measurementNotes: normalizeText(input.measurementNotes),
+  };
+}
+
 function ensureLiveModeUnsupported(): void {
   if (!isDemoMode()) {
     throw new Error(LIVE_MODE_ERROR);
@@ -174,6 +194,28 @@ function ensureLiveModeUnsupported(): void {
 
 let demoProjectsState: Project[] = mockProjects.map(cloneProject);
 let demoProjectDetailsState: ProjectDetailsById = cloneProjectDetailsById(mockProjectDetails);
+let demoIntakeSummaryState: Record<string, ProjectDetails["summary"]> = Object.fromEntries(
+  Object.entries(mockProjectDetails).map(([projectId, details]) => [
+    projectId,
+    cloneProjectSummary(details.summary),
+  ]),
+);
+
+export type UpdateProjectPatch = Partial<Pick<Project, "title" | "location" | "propertyType" | "status">>;
+
+export type SubmitIntakePayload = {
+  title?: string;
+  propertyType?: string;
+  city?: string;
+  state?: string;
+  goals: string;
+  constraints: string;
+  mustHaves: string;
+  dimensions: string;
+  ceilingHeight: string;
+  measurementNotes: string;
+  files?: ProjectFileInput[];
+};
 
 /**
  * Reads all projects for dashboard rendering.
@@ -207,7 +249,11 @@ export async function getProjectById(id: string): Promise<ProjectDetails | null>
       return null;
     }
 
-    return cloneProjectDetails(projectDetails);
+    const intakeSummary = demoIntakeSummaryState[id] ?? projectDetails.summary;
+    return cloneProjectDetails({
+      ...projectDetails,
+      summary: cloneProjectSummary(intakeSummary),
+    });
   }
 
   try {
@@ -247,6 +293,7 @@ export async function createProjectDraft(input: CreateProjectDraftInput): Promis
   ensureLiveModeUnsupported();
 
   const nowIsoTimestamp = new Date().toISOString();
+  const intakeSummary = buildSummaryFromIntakeInput(input);
   const createdProject: Project = {
     id: createProjectId(),
     title: normalizeText(input.title) || "Untitled Project",
@@ -258,14 +305,7 @@ export async function createProjectDraft(input: CreateProjectDraftInput): Promis
 
   const draftDetails: ProjectDetails = {
     project: cloneProject(createdProject),
-    summary: {
-      goals: normalizeText(input.goals),
-      constraints: normalizeText(input.constraints),
-      mustHaves: normalizeText(input.mustHaves),
-      dimensions: normalizeText(input.dimensions),
-      ceilingHeight: normalizeText(input.ceilingHeight),
-      measurementNotes: normalizeText(input.measurementNotes),
-    },
+    summary: cloneProjectSummary(intakeSummary),
     packageDetails: { ...DEFAULT_PACKAGE_DETAILS },
     messages: [],
     revisions: [],
@@ -276,9 +316,109 @@ export async function createProjectDraft(input: CreateProjectDraftInput): Promis
     ...demoProjectDetailsState,
     [createdProject.id]: draftDetails,
   };
+  demoIntakeSummaryState = {
+    ...demoIntakeSummaryState,
+    [createdProject.id]: cloneProjectSummary(intakeSummary),
+  };
 
   upsertProject(createdProject);
   return cloneProject(createdProject);
+}
+
+/**
+ * Updates a project record in demo mode and refreshes updatedAt automatically.
+ * Edge case: whitespace-only text patches keep existing values to avoid destructive blanking.
+ */
+export async function updateProject(
+  projectId: string,
+  patch: UpdateProjectPatch,
+): Promise<Project | null> {
+  ensureLiveModeUnsupported();
+
+  const projectDetails = demoProjectDetailsState[projectId];
+  if (!projectDetails) {
+    return null;
+  }
+
+  const nowIsoTimestamp = new Date().toISOString();
+  const nextProject: Project = {
+    ...projectDetails.project,
+    title:
+      patch.title !== undefined
+        ? normalizeText(patch.title) || projectDetails.project.title
+        : projectDetails.project.title,
+    location:
+      patch.location !== undefined
+        ? normalizeText(patch.location) || projectDetails.project.location
+        : projectDetails.project.location,
+    propertyType:
+      patch.propertyType !== undefined
+        ? toTitleCase(normalizeText(patch.propertyType) || projectDetails.project.propertyType)
+        : projectDetails.project.propertyType,
+    status: patch.status ?? projectDetails.project.status,
+    updatedAt: formatUpdatedAt(nowIsoTimestamp),
+  };
+
+  demoProjectDetailsState[projectId] = {
+    ...projectDetails,
+    project: nextProject,
+  };
+  upsertProject(nextProject);
+  return cloneProject(nextProject);
+}
+
+/**
+ * Captures intake payload into demo state and advances the project to submitted.
+ * Edge case: missing projects return null without mutating in-memory state.
+ */
+export async function submitIntake(
+  projectId: string,
+  intakePayload: SubmitIntakePayload,
+): Promise<ProjectDetails | null> {
+  ensureLiveModeUnsupported();
+
+  const projectDetails = demoProjectDetailsState[projectId];
+  if (!projectDetails) {
+    return null;
+  }
+
+  const nextSummary: ProjectDetails["summary"] = buildSummaryFromIntakeInput(intakePayload);
+  const nextLocation =
+    intakePayload.city !== undefined || intakePayload.state !== undefined
+      ? toLocation(intakePayload.city ?? "", intakePayload.state ?? "")
+      : projectDetails.project.location;
+  const nextUploadFiles = normalizeIncomingFiles(intakePayload.files ?? [], "upload");
+  const nowIsoTimestamp = new Date().toISOString();
+  const nextProject: Project = {
+    ...projectDetails.project,
+    title:
+      intakePayload.title !== undefined
+        ? normalizeText(intakePayload.title) || projectDetails.project.title
+        : projectDetails.project.title,
+    location: nextLocation,
+    propertyType:
+      intakePayload.propertyType !== undefined
+        ? toTitleCase(normalizeText(intakePayload.propertyType) || projectDetails.project.propertyType)
+        : projectDetails.project.propertyType,
+    status: "submitted",
+    updatedAt: formatUpdatedAt(nowIsoTimestamp),
+  };
+
+  demoIntakeSummaryState = {
+    ...demoIntakeSummaryState,
+    [projectId]: cloneProjectSummary(nextSummary),
+  };
+
+  const nextDetails: ProjectDetails = {
+    ...projectDetails,
+    project: nextProject,
+    summary: cloneProjectSummary(nextSummary),
+    files: nextUploadFiles.length > 0 ? [...nextUploadFiles, ...projectDetails.files] : projectDetails.files,
+  };
+
+  demoProjectDetailsState[projectId] = nextDetails;
+  upsertProject(nextProject);
+  return cloneProjectDetails(nextDetails);
 }
 
 /**
@@ -391,7 +531,7 @@ export async function addFiles(projectId: string, files: ProjectFileInput[]): Pr
  * Updates project lifecycle status in demo mode for admin workflows.
  * Edge case: unknown project ids return null without mutating state.
  */
-export async function updateProjectStatus(
+export async function setProjectStatus(
   projectId: string,
   status: Project["status"],
 ): Promise<Project | null> {
@@ -415,6 +555,53 @@ export async function updateProjectStatus(
   };
   upsertProject(nextProject);
   return cloneProject(nextProject);
+}
+
+/**
+ * Adds a deliverable file metadata record and marks the project as delivered.
+ * Edge case: empty file names are ignored and return null.
+ */
+export async function addDeliverable(
+  projectId: string,
+  fileMeta: ProjectFileInput,
+): Promise<ProjectFile | null> {
+  ensureLiveModeUnsupported();
+
+  const projectDetails = demoProjectDetailsState[projectId];
+  if (!projectDetails) {
+    return null;
+  }
+
+  const [nextDeliverable] = normalizeIncomingFiles([{ ...fileMeta, group: "deliverable" }], "deliverable");
+  if (!nextDeliverable) {
+    return null;
+  }
+
+  const nextProject: Project = {
+    ...projectDetails.project,
+    status: "delivered",
+    updatedAt: formatUpdatedAt(nextDeliverable.createdAt),
+  };
+  const nextDetails: ProjectDetails = {
+    ...projectDetails,
+    project: nextProject,
+    files: [nextDeliverable, ...projectDetails.files],
+  };
+
+  demoProjectDetailsState[projectId] = nextDetails;
+  upsertProject(nextProject);
+  return cloneProjectFile(nextDeliverable);
+}
+
+/**
+ * Backward-compatible alias for legacy admin callers.
+ * Edge case: delegates directly to setProjectStatus to keep behavior identical.
+ */
+export async function updateProjectStatus(
+  projectId: string,
+  status: Project["status"],
+): Promise<Project | null> {
+  return setProjectStatus(projectId, status);
 }
 
 /**

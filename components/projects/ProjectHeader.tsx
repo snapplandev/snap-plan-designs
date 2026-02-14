@@ -1,7 +1,11 @@
+import Link from "next/link";
+
 import Button from "@/components/ui/Button";
 import ProjectStatusPill, { type ProjectStatus } from "@/components/projects/ProjectStatusPill";
+import { checkoutUrl } from "@/lib/billing/url";
 
 type ProjectHeaderProps = Readonly<{
+  projectId: string;
   title: string;
   location: string;
   propertyType: string;
@@ -11,7 +15,7 @@ type ProjectHeaderProps = Readonly<{
 
 const CTA_LABELS: Record<ProjectStatus, string> = {
   draft: "Continue Intake",
-  submitted: "Review Intake",
+  submitted: "Checkout",
   in_review: "View Studio Notes",
   in_progress: "Upload References",
   delivered: "Review Deliverables",
@@ -23,12 +27,15 @@ const CTA_LABELS: Record<ProjectStatus, string> = {
  * Edge case: unknown status falls back to the default action map via strict status typing.
  */
 export default function ProjectHeader({
+  projectId,
   title,
   location,
   propertyType,
   status,
   onPrimaryAction,
 }: ProjectHeaderProps) {
+  const primaryActionHref = status === "submitted" ? checkoutUrl(projectId, "standard") : null;
+
   return (
     <header className="project-workspace-header" aria-label="Project folio header">
       <div className="project-workspace-header__signature" aria-hidden="true" />
@@ -43,13 +50,23 @@ export default function ProjectHeader({
         <h1 className="project-workspace-header__title">{title}</h1>
 
         <div className="project-workspace-header__actions">
-          <Button
-            aria-label={`${CTA_LABELS[status]} for ${title}`}
-            onClick={onPrimaryAction}
-            type="button"
-          >
-            {CTA_LABELS[status]}
-          </Button>
+          {primaryActionHref ? (
+            <Link
+              aria-label={`${CTA_LABELS[status]} for ${title}`}
+              className="button button--primary"
+              href={primaryActionHref}
+            >
+              {CTA_LABELS[status]}
+            </Link>
+          ) : (
+            <Button
+              aria-label={`${CTA_LABELS[status]} for ${title}`}
+              onClick={onPrimaryAction}
+              type="button"
+            >
+              {CTA_LABELS[status]}
+            </Button>
+          )}
         </div>
       </div>
     </header>

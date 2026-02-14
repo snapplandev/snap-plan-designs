@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { checkoutUrl } from "@/lib/billing/url";
 import { PACKAGE_DEFS, type PackageDefinition, type PackageId } from "@/lib/packages";
 
 const PACKAGE_ORDER: PackageId[] = ["starter", "standard", "premium"];
@@ -39,7 +40,7 @@ export default function PricingTable() {
           <Link
             aria-label={`Start with ${pkg.name}`}
             className="mk-link-underline"
-            href="/app"
+            href={checkoutUrl(undefined, pkg.id)}
           >
             Start with {pkg.name}
           </Link>
