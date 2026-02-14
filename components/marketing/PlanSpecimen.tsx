@@ -32,6 +32,7 @@ export default function PlanSpecimen() {
         <div className="mk-specimen__room mk-specimen__room--study">Study</div>
         <div className="mk-specimen__room mk-specimen__room--bedroom">Primary</div>
         <div className="mk-specimen__room mk-specimen__room--bath">Bath</div>
+        <span aria-hidden="true" className="mk-specimen__pin" />
 
         <span className="mk-specimen__note mk-specimen__note--north">N</span>
         <span className="mk-specimen__note mk-specimen__note--scale">Scale 1/4" = 1'-0"</span>

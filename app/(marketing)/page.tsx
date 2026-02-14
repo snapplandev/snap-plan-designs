@@ -28,24 +28,24 @@ export default function MarketingPage() {
       <div className="mk-content">
         <Hero />
 
-        <Section className="marketing-reveal marketing-reveal--d2" title="The dead zone between Pinterest and permitting.">
+        <Section className="reveal reveal--2" title="The dead zone between Pinterest and permitting.">
           <div className="mk-problem-grid">
-            <article className="mk-problem">
+            <article className="mk-problem reveal">
               <span className="mk-problem__marker" aria-hidden="true" />
               <h3>Estimates are guesses</h3>
             </article>
-            <article className="mk-problem">
+            <article className="mk-problem reveal">
               <span className="mk-problem__marker" aria-hidden="true" />
               <h3>Sketches don&apos;t translate</h3>
             </article>
-            <article className="mk-problem">
+            <article className="mk-problem reveal">
               <span className="mk-problem__marker" aria-hidden="true" />
               <h3>Projects stall before they start</h3>
             </article>
           </div>
         </Section>
 
-        <Section className="marketing-reveal marketing-reveal--d3" title="One decision-grade floor plan.">
+        <Section className="reveal reveal--3" title="One decision-grade floor plan.">
           <div className="mk-artifact">
             <div className="mk-artifact__copy">
               <ul className="mk-artifact__list" aria-label="Deliverable contents">
@@ -58,17 +58,17 @@ export default function MarketingPage() {
           </div>
         </Section>
 
-        <Section className="marketing-reveal marketing-reveal--d4" id="how-it-works" title="How it works">
+        <Section className="reveal reveal--4" id="how-it-works" title="How it works">
           <ol className="mk-steps" aria-label="How it works">
-            <li className="mk-step">
+            <li className="mk-step reveal">
               <span className="mk-step__index">01</span>
               <p>Submit inputs (sketch/photos/notes)</p>
             </li>
-            <li className="mk-step">
+            <li className="mk-step reveal">
               <span className="mk-step__index">02</span>
               <p>We draft + validate layout clarity</p>
             </li>
-            <li className="mk-step">
+            <li className="mk-step reveal">
               <span className="mk-step__index">03</span>
               <p>You receive a contractor-ready plan</p>
             </li>
@@ -76,15 +76,15 @@ export default function MarketingPage() {
           <p className="mk-turnaround">Typical turnaround: 48-72hr</p>
         </Section>
 
-        <Section className="marketing-reveal marketing-reveal--d4" title="Pricing">
+        <Section className="reveal reveal--4" title="Pricing">
           <PricingTable />
         </Section>
 
-        <Section className="marketing-reveal marketing-reveal--d4" title="FAQ">
+        <Section className="reveal reveal--4" title="FAQ">
           <FAQ />
         </Section>
 
-        <section className="mk-final-cta marketing-reveal marketing-reveal--d4" aria-label="Final call to action">
+        <section className="mk-final-cta reveal reveal--4" aria-label="Final call to action">
           <h2 className="mk-final-cta__title">Clarity first. Costly decisions second.</h2>
           <Link aria-label="Start a project from final call to action" className="mk-cta mk-cta--primary" href="/signup">
             Start a Project

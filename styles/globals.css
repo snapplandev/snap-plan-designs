@@ -11,6 +11,9 @@
   --accent-soft: #cbb8b3;
   --border: #e4dfd6;
   --success: #2f5d50;
+  --container-max: 1160px;
+  --gutter: clamp(20px, 5vw, 64px);
+  --section-y: clamp(56px, 7vw, 104px);
 }
 
 * {
@@ -1565,47 +1568,66 @@ p {
 .mk-page {
   min-height: 100dvh;
   background: var(--bg);
+  overflow-x: clip;
 }
 
 .mk-nav {
   position: sticky;
   top: 0;
   z-index: 40;
-  border-bottom: 1px solid color-mix(in oklab, var(--border) 84%, white);
-  background: color-mix(in oklab, var(--panel) 96%, var(--bg));
+  background: color-mix(in oklab, var(--panel) 89%, var(--bg));
+  -webkit-backdrop-filter: blur(8px) saturate(125%);
+  backdrop-filter: blur(8px) saturate(125%);
+}
+
+.mk-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in oklab, var(--border) 84%, white);
+  opacity: 0.42;
 }
 
 .mk-nav__inner {
-  width: min(100%, 1320px);
+  width: min(100%, var(--container-max));
   margin: 0 auto;
-  padding: 0.9rem clamp(1.2rem, 3.4vw, 2.6rem);
+  padding: clamp(0.72rem, 1.8vw, 1rem) var(--gutter);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .mk-nav__wordmark {
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
   font-weight: 600;
-  letter-spacing: 0.03em;
-  line-height: 1;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
   text-decoration: none;
 }
 
 .mk-nav__actions {
   display: flex;
   align-items: center;
-  gap: clamp(0.9rem, 2.2vw, 1.6rem);
+  gap: clamp(0.8rem, 2.2vw, 1.4rem);
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .mk-content {
-  width: min(100%, 1320px);
+  width: min(100%, var(--container-max));
   margin: 0 auto;
-  padding: clamp(1.5rem, 3.8vw, 2.8rem) clamp(1.2rem, 3.4vw, 2.6rem) clamp(2.8rem, 6vw, 4.9rem);
+  padding: calc(var(--section-y) * 0.45) var(--gutter) var(--section-y);
   display: grid;
-  gap: clamp(2rem, 5vw, 4.1rem);
+  gap: var(--section-y);
+}
+
+.mk-content > * {
+  min-width: 0;
 }
 
 .mk-link-underline {
@@ -1641,9 +1663,9 @@ p {
 .mk-hero {
   background: var(--panel);
   border: 1px solid color-mix(in oklab, var(--border) 84%, white);
-  padding: clamp(1.35rem, 3.9vw, 2.9rem);
+  padding: calc(var(--section-y) * 0.38) calc(var(--gutter) * 0.42);
   display: grid;
-  gap: clamp(0.95rem, 2.4vw, 1.45rem);
+  gap: clamp(0.9rem, 2.3vw, 1.35rem);
 }
 
 .mk-hero__stamp {
@@ -1668,21 +1690,23 @@ p {
 }
 
 .mk-hero__title {
-  max-width: 18ch;
-  font-size: clamp(2.3rem, 6.1vw, 5.1rem);
-  line-height: 0.94;
+  max-width: 16ch;
+  font-size: clamp(2.15rem, 5.9vw, 4.95rem);
+  line-height: 0.9;
+  letter-spacing: 0.006em;
 }
 
 .mk-hero__subhead {
-  max-width: 60ch;
-  font-size: clamp(1rem, 1.6vw, 1.22rem);
-  color: color-mix(in oklab, var(--text-primary) 82%, white);
+  max-width: 54ch;
+  font-size: clamp(1rem, 1.45vw, 1.16rem);
+  color: color-mix(in oklab, var(--text-primary) 78%, white);
 }
 
 .mk-hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.9rem;
+  margin-top: 0.4rem;
 }
 
 .mk-cta {
@@ -1757,9 +1781,9 @@ p {
 .mk-section {
   background: var(--panel);
   border: 1px solid color-mix(in oklab, var(--border) 84%, white);
-  padding: clamp(1.15rem, 3vw, 2.1rem);
+  padding: calc(var(--section-y) * 0.3) calc(var(--gutter) * 0.35);
   display: grid;
-  gap: 1rem;
+  gap: 1.05rem;
 }
 
 .mk-section__title {
@@ -1781,7 +1805,7 @@ p {
 
 .mk-problem {
   border: 1px solid color-mix(in oklab, var(--border) 86%, white);
-  padding: 0.8rem;
+  padding: 0.9rem;
   display: grid;
   gap: 0.52rem;
   min-height: 8rem;
@@ -1802,7 +1826,7 @@ p {
 .mk-artifact {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  gap: 1rem;
+  gap: 1.1rem;
   align-items: start;
 }
 
@@ -1826,7 +1850,7 @@ p {
 
 .mk-specimen {
   border: 1px solid color-mix(in oklab, var(--border) 84%, white);
-  padding: 0.65rem;
+  padding: 0.7rem;
   background: color-mix(in oklab, var(--panel) 98%, var(--bg));
   display: grid;
   gap: 0.4rem;
@@ -1836,13 +1860,29 @@ p {
   position: relative;
   min-height: clamp(15rem, 35vw, 20rem);
   border: 1px solid color-mix(in oklab, var(--border) 92%, white);
-  background: color-mix(in oklab, var(--panel) 94%, white);
+  background-color: color-mix(in oklab, var(--panel) 95%, white);
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 15px,
+      color-mix(in oklab, var(--border) 58%, white) 15px,
+      color-mix(in oklab, var(--border) 58%, white) 16px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 15px,
+      color-mix(in oklab, var(--border) 58%, white) 15px,
+      color-mix(in oklab, var(--border) 58%, white) 16px
+    );
   overflow: hidden;
 }
 
 .mk-specimen__guide {
   position: absolute;
-  background: color-mix(in oklab, var(--border) 74%, white);
+  background: color-mix(in oklab, var(--border) 70%, white);
+  opacity: 0.2;
 }
 
 .mk-specimen__guide--vertical {
@@ -1859,9 +1899,10 @@ p {
 
 .mk-specimen__room {
   position: absolute;
-  border: 1px solid color-mix(in oklab, var(--text-primary) 68%, white);
-  font-size: 0.63rem;
-  letter-spacing: 0.12em;
+  border: 1px solid color-mix(in oklab, var(--text-primary) 62%, white);
+  font-size: 0.62rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: color-mix(in oklab, var(--text-primary) 82%, white);
   display: grid;
@@ -1909,6 +1950,17 @@ p {
   top: 42%;
   width: 16%;
   height: 24%;
+}
+
+.mk-specimen__pin {
+  position: absolute;
+  left: 67%;
+  top: 31%;
+  width: 0.56rem;
+  height: 0.56rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 84%, black);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--panel) 92%, white);
 }
 
 .mk-specimen__note {
@@ -2056,7 +2108,7 @@ p {
 .mk-faq__question {
   cursor: pointer;
   list-style: none;
-  padding: 0.8rem 0.9rem;
+  padding: 0.95rem 1rem;
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 1.3rem;
   line-height: 1.1;
@@ -2078,6 +2130,11 @@ p {
   line-height: 1;
 }
 
+.mk-faq__question:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--accent) 50%, white);
+  outline-offset: -2px;
+}
+
 .mk-faq__item[open] .mk-faq__question::after {
   content: "-";
 }
@@ -2092,7 +2149,7 @@ p {
 .mk-final-cta {
   border: 1px solid color-mix(in oklab, var(--border) 84%, white);
   background: var(--panel);
-  padding: clamp(1.2rem, 3vw, 1.8rem);
+  padding: calc(var(--section-y) * 0.28) calc(var(--gutter) * 0.35);
   display: grid;
   justify-items: start;
   gap: 0.74rem;
@@ -2109,29 +2166,30 @@ p {
   letter-spacing: 0.04em;
 }
 
-.marketing-reveal {
+.reveal {
   opacity: 0;
-  transform: translateY(12px);
-  animation: marketing-reveal 0.5s ease forwards;
+  transform: translateY(10px);
+  animation: reveal 0.55s ease forwards;
+  animation-delay: var(--reveal-delay, 0s);
 }
 
-.marketing-reveal--d1 {
-  animation-delay: 0.05s;
+.reveal--1 {
+  --reveal-delay: 0.05s;
 }
 
-.marketing-reveal--d2 {
-  animation-delay: 0.13s;
+.reveal--2 {
+  --reveal-delay: 0.13s;
 }
 
-.marketing-reveal--d3 {
-  animation-delay: 0.21s;
+.reveal--3 {
+  --reveal-delay: 0.21s;
 }
 
-.marketing-reveal--d4 {
-  animation-delay: 0.29s;
+.reveal--4 {
+  --reveal-delay: 0.29s;
 }
 
-@keyframes marketing-reveal {
+@keyframes reveal {
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2139,11 +2197,47 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marketing-reveal {
+  .reveal {
     animation: none;
     opacity: 1;
     transform: none;
   }
+}
+
+.mk-problem-grid .mk-problem:nth-child(1).reveal {
+  --reveal-delay: 0.09s;
+}
+
+.mk-problem-grid .mk-problem:nth-child(2).reveal {
+  --reveal-delay: 0.16s;
+}
+
+.mk-problem-grid .mk-problem:nth-child(3).reveal {
+  --reveal-delay: 0.23s;
+}
+
+.mk-steps .mk-step:nth-child(1).reveal {
+  --reveal-delay: 0.08s;
+}
+
+.mk-steps .mk-step:nth-child(2).reveal {
+  --reveal-delay: 0.15s;
+}
+
+.mk-steps .mk-step:nth-child(3).reveal {
+  --reveal-delay: 0.22s;
+}
+
+.mk-pricing .mk-pricing__panel:nth-child(1).reveal {
+  --reveal-delay: 0.1s;
+}
+
+.mk-pricing .mk-pricing__panel:nth-child(2).reveal {
+  --reveal-delay: 0.17s;
+}
+
+.mk-pricing .mk-pricing__panel:nth-child(3).reveal {
+  --reveal-delay: 0.24s;
 }
 
 @media (max-width: 980px) {
@@ -2162,8 +2256,40 @@ p {
 
 @media (max-width: 600px) {
   .mk-nav__inner {
-    flex-direction: column;
-    align-items: flex-start;
+    padding-top: 0.66rem;
+    padding-bottom: 0.66rem;
+    gap: 0.6rem;
+  }
+
+  .mk-nav__wordmark {
+    font-size: 1.15rem;
+    max-width: 11.8rem;
+    line-height: 0.95;
+  }
+
+  .mk-nav__actions {
+    gap: 0.78rem;
+    font-size: 0.9rem;
+  }
+
+  .mk-content {
+    padding-top: clamp(0.95rem, 4.8vw, 1.4rem);
+    gap: clamp(2rem, 9vw, 2.6rem);
+  }
+
+  .mk-hero {
+    padding: calc(var(--section-y) * 0.34) calc(var(--gutter) * 0.38);
+  }
+
+  .mk-hero__title {
+    max-width: 13.6ch;
+    font-size: clamp(1.95rem, 9.2vw, 2.4rem);
+    letter-spacing: 0.005em;
+  }
+
+  .mk-hero__subhead {
+    max-width: 35ch;
+    font-size: 0.97rem;
   }
 
   .mk-hero__actions {
@@ -2179,6 +2305,15 @@ p {
   .mk-step {
     grid-template-columns: 1fr;
     gap: 0.25rem;
+  }
+
+  .mk-faq__question {
+    padding: 1rem;
+    font-size: 1.18rem;
+  }
+
+  .mk-faq__answer {
+    padding: 0.9rem 1rem 1rem;
   }
 }
 

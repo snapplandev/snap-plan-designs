@@ -14,7 +14,7 @@ export default function PricingTable() {
   return (
     <div className="mk-pricing">
       {packages.map((pkg, index) => (
-        <article className="mk-pricing__panel" key={pkg.id}>
+        <article className="mk-pricing__panel reveal" key={pkg.id}>
           <span className="mk-pricing__accent" aria-hidden="true" />
           <p className="mk-pricing__eyebrow">Package {index + 1}</p>
           <h3 className="mk-pricing__name">{pkg.name}</h3>
