@@ -1,32 +1,97 @@
 import Link from "next/link";
 
+import FAQ from "@/components/marketing/FAQ";
+import Hero from "@/components/marketing/Hero";
+import PlanSpecimen from "@/components/marketing/PlanSpecimen";
+import PricingTable from "@/components/marketing/PricingTable";
+import Section from "@/components/marketing/Section";
+
 export default function MarketingPage() {
   return (
-    <main style={{ minHeight: "100vh", padding: "5rem 1.5rem" }}>
-      <section
-        style={{
-          maxWidth: "44rem",
-          margin: "0 auto",
-          background: "var(--panel)",
-          border: "1px solid var(--border)",
-          padding: "3rem 2rem",
-        }}
-      >
-        <div
-          aria-hidden="true"
-          style={{
-            width: "3rem",
-            height: "2px",
-            background: "var(--accent)",
-            marginBottom: "1.25rem",
-          }}
-        />
-        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>Architect&apos;s Study</h1>
-        <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.75rem" }}>
-          <Link href="/login">Login</Link>
-          <Link href="/signup">Signup</Link>
+    <main className="mk-page">
+      <header className="mk-nav" aria-label="Primary">
+        <div className="mk-nav__inner">
+          <Link aria-label="Snap Plan Designs home" className="mk-nav__wordmark mk-link-underline" href="/">
+            Snap Plan Designs
+          </Link>
+          <nav className="mk-nav__actions" aria-label="Account actions">
+            <Link aria-label="Log in" className="mk-link-underline" href="/login">
+              Log in
+            </Link>
+            <Link aria-label="Start a project" className="mk-link-underline" href="/signup">
+              Start
+            </Link>
+          </nav>
         </div>
-      </section>
+      </header>
+
+      <div className="mk-content">
+        <Hero />
+
+        <Section className="marketing-reveal marketing-reveal--d2" title="The dead zone between Pinterest and permitting.">
+          <div className="mk-problem-grid">
+            <article className="mk-problem">
+              <span className="mk-problem__marker" aria-hidden="true" />
+              <h3>Estimates are guesses</h3>
+            </article>
+            <article className="mk-problem">
+              <span className="mk-problem__marker" aria-hidden="true" />
+              <h3>Sketches don&apos;t translate</h3>
+            </article>
+            <article className="mk-problem">
+              <span className="mk-problem__marker" aria-hidden="true" />
+              <h3>Projects stall before they start</h3>
+            </article>
+          </div>
+        </Section>
+
+        <Section className="marketing-reveal marketing-reveal--d3" title="One decision-grade floor plan.">
+          <div className="mk-artifact">
+            <div className="mk-artifact__copy">
+              <ul className="mk-artifact__list" aria-label="Deliverable contents">
+                <li>Scaled layout plan PDF</li>
+                <li>Key dimensions + flow clarity</li>
+                <li>Contractor-facing notes</li>
+              </ul>
+            </div>
+            <PlanSpecimen />
+          </div>
+        </Section>
+
+        <Section className="marketing-reveal marketing-reveal--d4" id="how-it-works" title="How it works">
+          <ol className="mk-steps" aria-label="How it works">
+            <li className="mk-step">
+              <span className="mk-step__index">01</span>
+              <p>Submit inputs (sketch/photos/notes)</p>
+            </li>
+            <li className="mk-step">
+              <span className="mk-step__index">02</span>
+              <p>We draft + validate layout clarity</p>
+            </li>
+            <li className="mk-step">
+              <span className="mk-step__index">03</span>
+              <p>You receive a contractor-ready plan</p>
+            </li>
+          </ol>
+          <p className="mk-turnaround">Typical turnaround: 48-72hr</p>
+        </Section>
+
+        <Section className="marketing-reveal marketing-reveal--d4" title="Pricing">
+          <PricingTable />
+        </Section>
+
+        <Section className="marketing-reveal marketing-reveal--d4" title="FAQ">
+          <FAQ />
+        </Section>
+
+        <section className="mk-final-cta marketing-reveal marketing-reveal--d4" aria-label="Final call to action">
+          <h2 className="mk-final-cta__title">Clarity first. Costly decisions second.</h2>
+          <Link aria-label="Start a project from final call to action" className="mk-cta mk-cta--primary" href="/signup">
+            Start a Project
+          </Link>
+          <p className="mk-final-cta__subtext">Remote. Fast. Built for real execution.</p>
+        </section>
+      </div>
     </main>
   );
 }
