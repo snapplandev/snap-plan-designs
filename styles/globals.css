@@ -156,6 +156,456 @@ p {
   letter-spacing: 0.02em;
 }
 
+.admin-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: color-mix(in oklab, var(--bg) 84%, white);
+  color: var(--text);
+}
+
+.admin-shell__header {
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  background: color-mix(in oklab, var(--panel) 96%, var(--bg));
+}
+
+.admin-shell__header-inner {
+  width: min(100%, 1400px);
+  margin: 0 auto;
+  padding: 0.82rem clamp(1.05rem, 2.6vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-shell__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.52rem;
+}
+
+.admin-shell__wordmark {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.admin-shell__badge {
+  border: 1px solid color-mix(in oklab, var(--accent) 50%, var(--border));
+  color: color-mix(in oklab, var(--accent) 76%, var(--text-primary));
+  padding: 0.22rem 0.45rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  font-weight: 600;
+  background: color-mix(in oklab, var(--panel) 95%, var(--bg));
+}
+
+.admin-shell__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-shell__nav-link {
+  color: color-mix(in oklab, var(--text-primary) 90%, white);
+  text-decoration: none;
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid transparent;
+  padding: 0.1rem 0;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.admin-shell__nav-link:hover {
+  color: color-mix(in oklab, var(--accent) 82%, black);
+  border-color: color-mix(in oklab, var(--accent-soft) 72%, var(--border));
+}
+
+.admin-shell__wordmark:focus-visible,
+.admin-shell__nav-link:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--accent) 60%, white);
+  outline-offset: 3px;
+}
+
+.admin-shell__main {
+  flex: 1;
+  padding: clamp(1.6rem, 3.6vw, 3rem) clamp(1.05rem, 2.6vw, 2rem) clamp(2.2rem, 4vw, 4rem);
+}
+
+.admin-shell__container {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.admin-shell__demo-banner {
+  border: 1px solid color-mix(in oklab, var(--accent-soft) 58%, var(--border));
+  background: color-mix(in oklab, var(--panel) 92%, var(--bg));
+  color: color-mix(in oklab, var(--text-primary) 84%, var(--accent));
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  padding: 0.54rem 0.72rem;
+  margin-bottom: 0.85rem;
+  text-transform: uppercase;
+}
+
+.admin-queue {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.admin-queue__header {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.admin-queue__kicker {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-queue__title {
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  line-height: 0.96;
+}
+
+.admin-queue__subtitle {
+  color: var(--text-muted);
+  max-width: 58ch;
+}
+
+.admin-queue__error {
+  border: 1px solid color-mix(in oklab, var(--accent-soft) 60%, var(--border));
+  background: color-mix(in oklab, var(--panel) 95%, var(--bg));
+  padding: 0.7rem 0.82rem;
+  color: color-mix(in oklab, var(--accent) 72%, var(--text-primary));
+}
+
+.admin-ledger {
+  background: var(--panel);
+  border: 1px solid color-mix(in oklab, var(--border) 86%, white);
+  box-shadow: 0 12px 26px color-mix(in oklab, black 5%, transparent);
+}
+
+.admin-ledger__empty {
+  padding: 1.1rem 1rem;
+  color: var(--text-muted);
+}
+
+.admin-ledger__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(9rem, 0.9fr) minmax(8rem, 0.7fr) auto;
+  align-items: center;
+  gap: 0.7rem 1rem;
+  padding: 0.84rem 1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 88%, white);
+  transition: background-color 0.18s ease;
+}
+
+.admin-ledger__row:last-child {
+  border-bottom: 0;
+}
+
+.admin-ledger__row:hover {
+  background: color-mix(in oklab, var(--accent-soft) 10%, var(--panel));
+}
+
+.admin-ledger__identity {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.admin-ledger__title {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.admin-ledger__client {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-ledger__status {
+  justify-self: start;
+}
+
+.admin-ledger__date {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  font-variant-caps: all-small-caps;
+  color: color-mix(in oklab, var(--text-muted) 85%, white);
+}
+
+.admin-ledger__actions {
+  justify-self: end;
+}
+
+.admin-ledger__open {
+  min-width: 5.6rem;
+  padding-block: 0.6rem;
+}
+
+.admin-ops {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-ops__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-ops__kicker {
+  color: var(--text-muted);
+  font-size: 0.69rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-ops__title {
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  line-height: 0.96;
+}
+
+.admin-ops__subtitle {
+  color: var(--text-muted);
+}
+
+.admin-ops__notice {
+  border: 1px solid color-mix(in oklab, var(--accent-soft) 68%, var(--border));
+  background: color-mix(in oklab, var(--panel) 95%, var(--bg));
+  padding: 0.62rem 0.78rem;
+  font-size: 0.9rem;
+}
+
+.admin-ops__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.admin-ops-panel {
+  border: 1px solid color-mix(in oklab, var(--border) 86%, white);
+  background: var(--panel);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.66rem;
+}
+
+.admin-ops-panel--wide {
+  grid-column: 1 / -1;
+}
+
+.admin-ops-panel__title {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-control-label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-control {
+  width: 100%;
+  appearance: none;
+  border: 1px solid color-mix(in oklab, var(--border) 82%, white);
+  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+  color: var(--text-primary);
+  padding: 0.6rem 0.66rem;
+  font: inherit;
+  line-height: 1.3;
+}
+
+.admin-control:focus-visible,
+.admin-composer:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--accent) 56%, white);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--accent-soft) 34%, white),
+    0 0 0 4px color-mix(in oklab, var(--accent) 22%, white);
+}
+
+.admin-ops-panel__meta {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.admin-ops-panel__meta dt {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-ops-panel__meta dd {
+  font-size: 0.92rem;
+}
+
+.admin-file-uploader {
+  border: 1px dashed color-mix(in oklab, var(--accent-soft) 70%, var(--border));
+  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.16rem;
+  cursor: pointer;
+}
+
+.admin-file-uploader__title {
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.admin-file-uploader__hint {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.admin-file-uploader__input {
+  width: 100%;
+}
+
+.admin-ops-panel__list {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  padding: 0;
+}
+
+.admin-ops-panel__list-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.42rem;
+  border-top: 1px solid color-mix(in oklab, var(--border) 88%, white);
+  font-size: 0.86rem;
+}
+
+.admin-ops-panel__list-item time {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+}
+
+.admin-ops-panel__empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-composer {
+  width: 100%;
+  border: 1px solid color-mix(in oklab, var(--border) 82%, white);
+  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+  color: var(--text-primary);
+  font: inherit;
+  line-height: 1.45;
+  padding: 0.65rem;
+  resize: vertical;
+}
+
+.admin-ops-panel__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.admin-message-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.56rem;
+}
+
+.admin-message-list__item {
+  border-top: 1px solid color-mix(in oklab, var(--border) 88%, white);
+  padding-top: 0.52rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-message-list__item p {
+  font-size: 0.92rem;
+}
+
+.admin-message-list__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.admin-revision-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.admin-revision-list__item {
+  border-top: 1px solid color-mix(in oklab, var(--border) 88%, white);
+  padding-top: 0.6rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 13rem);
+  align-items: start;
+  gap: 0.8rem;
+}
+
+.admin-revision-list__title {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.admin-revision-list__details {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.admin-revision-list__controls {
+  display: grid;
+  gap: 0.28rem;
+}
+
 .app-dashboard-proof {
   display: flex;
   align-items: center;
@@ -404,10 +854,23 @@ p {
   color: color-mix(in oklab, var(--text-primary) 75%, var(--accent));
 }
 
+.runtime-badge--live {
+  border-color: color-mix(in oklab, var(--success) 45%, var(--border));
+  color: color-mix(in oklab, var(--success) 72%, var(--text-primary));
+}
+
 .projects-dashboard__subhead {
   color: var(--text-muted);
   max-width: 44ch;
   font-size: 1.04rem;
+}
+
+.projects-dashboard__error {
+  border: 1px solid color-mix(in oklab, var(--accent-soft) 66%, var(--border));
+  background: color-mix(in oklab, var(--panel) 95%, var(--bg));
+  padding: 0.58rem 0.72rem;
+  color: color-mix(in oklab, var(--text-primary) 82%, var(--accent));
+  font-size: 0.87rem;
 }
 
 .projects-dashboard__cta {
@@ -2476,5 +2939,55 @@ p {
 
   .intake-wizard__actions .button {
     width: 100%;
+  }
+}
+
+@media (max-width: 980px) {
+  .admin-ledger__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "identity actions"
+      "status date";
+    align-items: center;
+  }
+
+  .admin-ledger__identity {
+    grid-area: identity;
+  }
+
+  .admin-ledger__status {
+    grid-area: status;
+  }
+
+  .admin-ledger__date {
+    grid-area: date;
+    justify-self: end;
+  }
+
+  .admin-ledger__actions {
+    grid-area: actions;
+  }
+
+  .admin-ops__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-shell__nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-ledger__row {
+    padding: 0.8rem 0.75rem;
+  }
+
+  .admin-ops-panel {
+    padding: 0.8rem;
+  }
+
+  .admin-revision-list__item {
+    grid-template-columns: 1fr;
   }
 }

@@ -2,17 +2,13 @@
 
 import { useState } from "react";
 
+import type { Revision, RevisionStatus } from "@/lib/data/types";
 import Button from "@/components/ui/Button";
 
-type RevisionStatus = "open" | "in_progress" | "resolved" | "declined";
-
-type RevisionRequest = {
-  id: string;
-  title: string;
-  details: string;
-  status: RevisionStatus;
-  createdAt: string;
-};
+type RevisionsPanelProps = Readonly<{
+  revisions: Revision[];
+  onAddRevision: (title: string, details: string, status: RevisionStatus) => Promise<void>;
+}>;
 
 type RevisionFormState = {
   title: string;
@@ -27,35 +23,11 @@ const REVISION_STATUS_LABELS: Record<RevisionStatus, string> = {
   declined: "Declined",
 };
 
-const INITIAL_REVISIONS: RevisionRequest[] = [
-  {
-    id: "revision-1",
-    title: "Pantry Door Swing",
-    details: "Adjust swing to avoid conflict with island clearance path.",
-    status: "resolved",
-    createdAt: "2026-02-09T14:18:00.000Z",
-  },
-  {
-    id: "revision-2",
-    title: "Mudroom Bench Length",
-    details: "Extend bench by 18 inches and align hooks with cabinet centerline.",
-    status: "in_progress",
-    createdAt: "2026-02-12T09:35:00.000Z",
-  },
-];
-
 const EMPTY_FORM: RevisionFormState = {
   title: "",
   details: "",
   status: "open",
 };
-
-function createRevisionId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `revision-${crypto.randomUUID()}`;
-  }
-  return `revision-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
 
 function formatRevisionDate(value: string): string {
   const parsedValue = new Date(value);
@@ -82,33 +54,29 @@ function RevisionStatusPill({ status }: Readonly<{ status: RevisionStatus }>) {
 }
 
 /**
- * Revision request tracker with inline local-only request form.
- * Edge case: whitespace-only title/details are rejected before inserting a new item.
+ * Revision request tracker with adapter-backed request creation.
+ * Edge case: whitespace-only title/details are rejected before submitting to the adapter.
  */
-export default function RevisionsPanel() {
-  const [revisions, setRevisions] = useState<RevisionRequest[]>(INITIAL_REVISIONS);
+export default function RevisionsPanel({ revisions, onAddRevision }: RevisionsPanelProps) {
   const [showForm, setShowForm] = useState(false);
   const [formState, setFormState] = useState<RevisionFormState>(EMPTY_FORM);
+  const [submitPending, setSubmitPending] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const normalizedTitle = formState.title.trim();
     const normalizedDetails = formState.details.trim();
-    if (normalizedTitle.length === 0 || normalizedDetails.length === 0) {
+    if (normalizedTitle.length === 0 || normalizedDetails.length === 0 || submitPending) {
       return;
     }
 
-    setRevisions((previousRevisions) => [
-      {
-        id: createRevisionId(),
-        title: normalizedTitle,
-        details: normalizedDetails,
-        status: formState.status,
-        createdAt: new Date().toISOString(),
-      },
-      ...previousRevisions,
-    ]);
-    setFormState(EMPTY_FORM);
-    setShowForm(false);
+    setSubmitPending(true);
+    try {
+      await onAddRevision(normalizedTitle, normalizedDetails, formState.status);
+      setFormState(EMPTY_FORM);
+      setShowForm(false);
+    } finally {
+      setSubmitPending(false);
+    }
   };
 
   return (
@@ -187,7 +155,14 @@ export default function RevisionsPanel() {
           </select>
 
           <div className="revisions-panel__form-actions">
-            <Button aria-label="Submit revision request" onClick={handleSubmit} type="button">
+            <Button
+              aria-label="Submit revision request"
+              disabled={submitPending}
+              onClick={() => {
+                void handleSubmit();
+              }}
+              type="button"
+            >
               Submit Revision
             </Button>
           </div>

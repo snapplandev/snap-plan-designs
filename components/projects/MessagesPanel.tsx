@@ -2,38 +2,13 @@
 
 import { useState } from "react";
 
+import type { Message } from "@/lib/data/types";
 import Button from "@/components/ui/Button";
 
-type MessageSender = "Client" | "Snap Plan";
-
-type MessageRecord = {
-  id: string;
-  sender: MessageSender;
-  body: string;
-  createdAt: string;
-};
-
-const INITIAL_MESSAGES: MessageRecord[] = [
-  {
-    id: "message-1",
-    sender: "Snap Plan",
-    body: "Intake package received. We are reviewing your references and scope notes.",
-    createdAt: "2026-02-11T10:18:00.000Z",
-  },
-  {
-    id: "message-2",
-    sender: "Client",
-    body: "Great. Please prioritize kitchen circulation and pantry access in the first pass.",
-    createdAt: "2026-02-11T13:42:00.000Z",
-  },
-];
-
-function createMessageId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `message-${crypto.randomUUID()}`;
-  }
-  return `message-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
+type MessagesPanelProps = Readonly<{
+  messages: Message[];
+  onAddMessage: (body: string) => Promise<void>;
+}>;
 
 function formatMessageDate(value: string): string {
   const parsedValue = new Date(value);
@@ -49,29 +24,26 @@ function formatMessageDate(value: string): string {
 }
 
 /**
- * Studio-style message log with a local-only composer.
- * Edge case: empty or whitespace-only drafts are ignored on send.
+ * Studio-style message log with adapter-backed message creation.
+ * Edge case: empty or whitespace-only drafts are ignored before adapter calls.
  */
-export default function MessagesPanel() {
-  const [messages, setMessages] = useState<MessageRecord[]>(INITIAL_MESSAGES);
+export default function MessagesPanel({ messages, onAddMessage }: MessagesPanelProps) {
   const [draft, setDraft] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const nextBody = draft.trim();
-    if (nextBody.length === 0) {
+    if (nextBody.length === 0 || isSending) {
       return;
     }
 
-    setMessages((previousMessages) => [
-      ...previousMessages,
-      {
-        id: createMessageId(),
-        sender: "Client",
-        body: nextBody,
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-    setDraft("");
+    setIsSending(true);
+    try {
+      await onAddMessage(nextBody);
+      setDraft("");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -84,6 +56,7 @@ export default function MessagesPanel() {
       </header>
 
       <ol className="messages-panel__thread" aria-label="Message thread">
+        {messages.length === 0 ? <li className="messages-panel__item">No messages yet.</li> : null}
         {messages.map((message) => (
           <li className="messages-panel__item" key={message.id}>
             <div className="messages-panel__item-header">
@@ -110,7 +83,14 @@ export default function MessagesPanel() {
           value={draft}
         />
         <div className="messages-panel__composer-actions">
-          <Button aria-label="Send message to Snap Plan" onClick={handleSend} type="button">
+          <Button
+            aria-label="Send message to Snap Plan"
+            disabled={isSending}
+            onClick={() => {
+              void handleSend();
+            }}
+            type="button"
+          >
             Send
           </Button>
         </div>

@@ -1,0 +1,93 @@
+export type ProjectStatus =
+  | "draft"
+  | "submitted"
+  | "in_review"
+  | "in_progress"
+  | "delivered"
+  | "closed";
+
+export type MessageSender = "Client" | "Snap Plan";
+
+export type RevisionStatus = "open" | "in_progress" | "resolved" | "declined";
+
+export type ProjectFileGroup = "upload" | "deliverable";
+
+export type Project = {
+  id: string;
+  title: string;
+  location: string;
+  propertyType: string;
+  status: ProjectStatus;
+  updatedAt: string;
+};
+
+export type Message = {
+  id: string;
+  sender: MessageSender;
+  body: string;
+  createdAt: string;
+};
+
+export type Revision = {
+  id: string;
+  title: string;
+  details: string;
+  status: RevisionStatus;
+  createdAt: string;
+};
+
+export type ProjectFile = {
+  id: string;
+  name: string;
+  size: number;
+  mimeType: string;
+  group: ProjectFileGroup;
+  createdAt: string;
+};
+
+export type ProjectSummary = {
+  goals: string;
+  constraints: string;
+  mustHaves: string;
+  dimensions: string;
+  ceilingHeight: string;
+  measurementNotes: string;
+};
+
+export type ProjectPackageDetails = {
+  tier: string;
+  revisionsIncluded: string;
+  turnaround: string;
+};
+
+export type ProjectDetails = {
+  project: Project;
+  summary: ProjectSummary;
+  packageDetails: ProjectPackageDetails;
+  messages: Message[];
+  revisions: Revision[];
+  files: ProjectFile[];
+};
+
+export type ProjectDetailsById = Record<string, ProjectDetails>;
+
+export type ProjectFileInput = {
+  name: string;
+  size: number;
+  mimeType?: string;
+  group?: ProjectFileGroup;
+};
+
+export type CreateProjectDraftInput = {
+  title: string;
+  propertyType: string;
+  city: string;
+  state: string;
+  goals: string;
+  constraints: string;
+  mustHaves: string;
+  dimensions: string;
+  ceilingHeight: string;
+  measurementNotes: string;
+  files?: ProjectFileInput[];
+};

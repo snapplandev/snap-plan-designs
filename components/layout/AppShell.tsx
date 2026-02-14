@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { isDemoMode } from "@/lib/runtime/mode";
+import { modeLabel } from "@/lib/runtime/mode";
 
 type AppShellProps = Readonly<{
   children: React.ReactNode;
@@ -11,7 +11,7 @@ type AppShellProps = Readonly<{
  * Edge case: header navigation wraps on narrow widths without truncating links.
  */
 export default function AppShell({ children }: AppShellProps) {
-  const demoMode = isDemoMode();
+  const runtimeMode = modeLabel();
 
   return (
     <div className="app-shell">
@@ -37,11 +37,15 @@ export default function AppShell({ children }: AppShellProps) {
 
       <main className="app-shell__main" id="main-content">
         <div className="app-shell__container">
-          {demoMode ? (
+          {runtimeMode === "demo" ? (
             <p className="app-shell__demo-banner" role="status">
               Demo mode — authentication and storage will activate once Supabase is configured.
             </p>
-          ) : null}
+          ) : (
+            <p className="app-shell__demo-banner" role="status">
+              Live mode — connected.
+            </p>
+          )}
           {children}
         </div>
       </main>

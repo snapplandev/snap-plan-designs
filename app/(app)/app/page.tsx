@@ -1,54 +1,53 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import EmptyState from "@/components/projects/EmptyState";
 import ProjectCard from "@/components/projects/ProjectCard";
-import type { ProjectStatus } from "@/components/projects/ProjectStatusPill";
+import { getDataClientError, getProjects } from "@/lib/data/client";
+import type { Project } from "@/lib/data/types";
 import { isDemoMode } from "@/lib/runtime/mode";
 
-type MockProject = {
-  id: string;
-  title: string;
-  location: string;
-  status: ProjectStatus;
-  updatedAt: string;
-};
+function canOpenProjectWorkspace(status: Project["status"]): boolean {
+  return status === "in_review" || status === "in_progress" || status === "closed";
+}
 
-const SHOW_EMPTY_STATE = false;
-
-const mockProjects: MockProject[] = [
-  {
-    id: "1",
-    title: "North Shore Residence",
-    location: "Evanston, IL",
-    status: "in_progress",
-    updatedAt: "2026-02-12",
-  },
-  {
-    id: "2",
-    title: "Hudson Brownstone",
-    location: "Brooklyn, NY",
-    status: "submitted",
-    updatedAt: "2026-02-10",
-  },
-  {
-    id: "3",
-    title: "Canyon Guest Pavilion",
-    location: "Scottsdale, AZ",
-    status: "in_review",
-    updatedAt: "2026-02-08",
-  },
-  {
-    id: "4",
-    title: "Seaboard Atelier",
-    location: "Charleston, SC",
-    status: "delivered",
-    updatedAt: "2026-02-03",
-  },
-];
-
+/**
+ * Client dashboard bound to the data adapter so storage mode changes stay backend-only.
+ * Edge case: adapter failures degrade to an empty project list without breaking navigation.
+ */
 export default function AppPage() {
-  const projectsToRender = SHOW_EMPTY_STATE ? [] : mockProjects;
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const demoMode = isDemoMode();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProjects = async () => {
+      try {
+        const records = await getProjects();
+        if (isMounted) {
+          setProjects(records);
+          setLoadError(getDataClientError());
+        }
+      } catch (error) {
+        if (isMounted) {
+          setProjects([]);
+          setLoadError(error instanceof Error ? error.message : "Unable to load projects.");
+        }
+      }
+    };
+
+    void loadProjects();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const sampleProjectId = projects[0]?.id ?? "1";
 
   return (
     <section className="projects-dashboard" aria-label="Client projects dashboard">
@@ -60,35 +59,44 @@ export default function AppPage() {
               <span aria-label="Demo data" className="runtime-badge runtime-badge--demo" role="status">
                 Demo
               </span>
-            ) : null}
+            ) : (
+              <span aria-label="Live mode connected" className="runtime-badge runtime-badge--live" role="status">
+                Live mode — connected
+              </span>
+            )}
           </div>
           <p className="projects-dashboard__subhead">
             Your planning workspace — organized, versioned, contractor-ready.
           </p>
+          {loadError ? (
+            <p aria-live="polite" className="projects-dashboard__error">
+              {loadError}
+            </p>
+          ) : null}
         </div>
 
         <div className="projects-dashboard__cta">
           <Link aria-label="Create a new project" className="button button--primary" href="/app/projects/new">
             New Project
           </Link>
-          <Link aria-label="Open sample project workspace" className="projects-dashboard__sample-link" href="/app/projects/1">
+          <Link
+            aria-label="Open sample project workspace"
+            className="projects-dashboard__sample-link"
+            href={`/app/projects/${sampleProjectId}`}
+          >
             Open sample project
           </Link>
         </div>
       </header>
 
       <div className="projects-dashboard__list" role="list">
-        {projectsToRender.length === 0 ? (
+        {projects.length === 0 ? (
           <EmptyState />
         ) : (
-          projectsToRender.map((project) => (
+          projects.map((project) => (
             <div key={project.id} role="listitem">
               <ProjectCard
-                projectHref={
-                  project.status === "in_review" || project.status === "in_progress" || project.status === "closed"
-                    ? `/app/projects/${project.id}`
-                    : undefined
-                }
+                projectHref={canOpenProjectWorkspace(project.status) ? `/app/projects/${project.id}` : undefined}
                 title={project.title}
                 location={project.location}
                 status={project.status}

@@ -7,6 +7,8 @@ import Field from "@/components/intake/Field";
 import StepHeader from "@/components/intake/StepHeader";
 import WizardShell from "@/components/intake/WizardShell";
 import Button from "@/components/ui/Button";
+import { createProjectDraft } from "@/lib/data/client";
+import type { ProjectFileInput } from "@/lib/data/types";
 
 type PropertyType = "" | "remodel" | "basement" | "addition" | "other";
 
@@ -194,8 +196,8 @@ function formatFileSize(fileSizeInBytes: number): string {
 }
 
 /**
- * New project intake wizard page using local reducer state only.
- * Edge case: submit shows an inline confirmation before redirecting to dashboard.
+ * New project intake wizard page bound to the data adapter create action.
+ * Edge case: failed adapter writes keep the user on review step with an actionable error.
  */
 export default function NewProjectPage() {
   const router = useRouter();
@@ -262,22 +264,53 @@ export default function NewProjectPage() {
     handleFileSelection(event.dataTransfer.files);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (state.submitPending) {
       return;
     }
     dispatch({
       type: "SET_NOTICE",
-      notice: "Intake captured. Redirecting to your sample project workspace...",
+      notice: "Intake captured. Creating your project workspace...",
     });
     dispatch({ type: "SET_SUBMIT_PENDING", submitPending: true });
 
-    if (redirectTimerRef.current !== null) {
-      window.clearTimeout(redirectTimerRef.current);
+    try {
+      const uploadedFiles: ProjectFileInput[] = state.files.map((file) => ({
+        name: file.name,
+        size: file.size,
+        mimeType: file.type || "Unknown type",
+      }));
+
+      const project = await createProjectDraft({
+        title: state.fields.title,
+        propertyType: state.fields.propertyType,
+        city: state.fields.city,
+        state: state.fields.state,
+        goals: state.fields.goals,
+        constraints: state.fields.constraints,
+        mustHaves: state.fields.mustHaves,
+        dimensions: state.fields.dimensions,
+        ceilingHeight: state.fields.ceilingHeight,
+        measurementNotes: state.fields.measurementNotes,
+        files: uploadedFiles,
+      });
+
+      if (redirectTimerRef.current !== null) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+      redirectTimerRef.current = window.setTimeout(() => {
+        router.push(`/app/projects/${project.id}`);
+      }, REDIRECT_DELAY_MS);
+    } catch (error) {
+      dispatch({
+        type: "SET_NOTICE",
+        notice:
+          error instanceof Error
+            ? `Unable to create project: ${error.message}`
+            : "Unable to create project. Please try again.",
+      });
+      dispatch({ type: "SET_SUBMIT_PENDING", submitPending: false });
     }
-    redirectTimerRef.current = window.setTimeout(() => {
-      router.push("/app/projects/1");
-    }, REDIRECT_DELAY_MS);
   };
 
   const titleError =
@@ -604,7 +637,9 @@ export default function NewProjectPage() {
               <Button
                 aria-label="Submit intake and return to dashboard"
                 disabled={state.submitPending}
-                onClick={handleSubmit}
+                onClick={() => {
+                  void handleSubmit();
+                }}
               >
                 Submit Intake
               </Button>

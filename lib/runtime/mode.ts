@@ -21,3 +21,11 @@ export function isDemoMode(): boolean {
   const supabaseAnonKey = readEnvValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   return !supabaseUrl || !supabaseAnonKey;
 }
+
+/**
+ * Runtime mode label helper for lightweight UI status indicators.
+ * Edge case: environment lookup failures resolve to "demo" through isDemoMode().
+ */
+export function modeLabel(): "demo" | "live" {
+  return isDemoMode() ? "demo" : "live";
+}

@@ -1,23 +1,16 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 
-import type { ProjectStatus } from "@/components/projects/ProjectStatusPill";
+import type { ProjectFile, ProjectFileGroup, ProjectFileInput, ProjectStatus } from "@/lib/data/types";
 import Button from "@/components/ui/Button";
 
 type FilePanelProps = Readonly<{
+  projectId: string;
   projectStatus: ProjectStatus;
+  files: ProjectFile[];
+  onAddFiles: (projectId: string, files: ProjectFileInput[]) => Promise<void>;
 }>;
-
-type ProjectFileGroup = "upload" | "deliverable";
-
-type ProjectFileRecord = {
-  id: string;
-  name: string;
-  size: number;
-  mimeType: string;
-  group: ProjectFileGroup;
-};
 
 type DeliverableNote = {
   id: string;
@@ -26,34 +19,6 @@ type DeliverableNote = {
 };
 
 const ACCEPTED_EXTENSIONS = ".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png";
-
-const INITIAL_FILES: Record<"standard" | "delivered", ProjectFileRecord[]> = {
-  standard: [
-    {
-      id: "upload-1",
-      name: "existing-site-photos.zip",
-      size: 1_245_000,
-      mimeType: "application/zip",
-      group: "upload",
-    },
-  ],
-  delivered: [
-    {
-      id: "upload-2",
-      name: "kitchen-dimensions.pdf",
-      size: 245_600,
-      mimeType: "application/pdf",
-      group: "upload",
-    },
-    {
-      id: "deliverable-1",
-      name: "permit-ready-floor-plan.pdf",
-      size: 1_420_380,
-      mimeType: "application/pdf",
-      group: "deliverable",
-    },
-  ],
-};
 
 function formatFileSize(sizeInBytes: number): string {
   const kibibyte = 1024;
@@ -76,37 +41,50 @@ function createUniqueId(prefix: string): string {
 }
 
 /**
- * Local-only file workspace with drag/drop and grouped file lists.
+ * File workspace with adapter-backed file metadata inserts.
  * Edge case: non-delivered projects never render the deliverables group controls.
  */
-export default function FilePanel({ projectStatus }: FilePanelProps) {
+export default function FilePanel({ projectId, projectStatus, files, onAddFiles }: FilePanelProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const allowDeliverables = projectStatus === "delivered";
   const [isDropActive, setIsDropActive] = useState(false);
   const [targetGroup, setTargetGroup] = useState<ProjectFileGroup>("upload");
-  const [files, setFiles] = useState<ProjectFileRecord[]>(
-    allowDeliverables ? INITIAL_FILES.delivered : INITIAL_FILES.standard,
-  );
+  const [workspaceFiles, setWorkspaceFiles] = useState<ProjectFile[]>(files);
   const [requestNote, setRequestNote] = useState("");
   const [requestNotes, setRequestNotes] = useState<DeliverableNote[]>([]);
 
-  const uploadFiles = files.filter((file) => file.group === "upload");
-  const deliverableFiles = files.filter((file) => file.group === "deliverable");
+  useEffect(() => {
+    setWorkspaceFiles(files);
+  }, [files]);
+
+  const uploadFiles = workspaceFiles.filter((file) => file.group === "upload");
+  const deliverableFiles = workspaceFiles.filter((file) => file.group === "deliverable");
 
   const addIncomingFiles = (fileList: FileList | null) => {
     if (!fileList) {
       return;
     }
-    const newRecords = Array.from(fileList).map((file) => ({
+    const createdAt = new Date().toISOString();
+    const newRecords: ProjectFile[] = Array.from(fileList).map((file) => ({
       id: createUniqueId("file"),
       name: file.name,
       size: file.size,
       mimeType: file.type || "Unknown type",
       group: allowDeliverables ? targetGroup : "upload",
+      createdAt,
     }));
 
     if (newRecords.length > 0) {
-      setFiles((previousFiles) => [...newRecords, ...previousFiles]);
+      setWorkspaceFiles((previousFiles) => [...newRecords, ...previousFiles]);
+      void onAddFiles(
+        projectId,
+        newRecords.map((record) => ({
+          name: record.name,
+          size: record.size,
+          mimeType: record.mimeType,
+          group: record.group,
+        })),
+      );
     }
   };
 
@@ -132,7 +110,7 @@ export default function FilePanel({ projectStatus }: FilePanelProps) {
   };
 
   const removeFile = (id: string) => {
-    setFiles((previousFiles) => previousFiles.filter((file) => file.id !== id));
+    setWorkspaceFiles((previousFiles) => previousFiles.filter((file) => file.id !== id));
   };
 
   const saveRequestNote = () => {

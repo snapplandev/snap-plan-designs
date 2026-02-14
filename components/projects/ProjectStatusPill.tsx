@@ -1,10 +1,6 @@
-export type ProjectStatus =
-  | "draft"
-  | "submitted"
-  | "in_review"
-  | "in_progress"
-  | "delivered"
-  | "closed";
+import type { ProjectStatus } from "@/lib/data/types";
+
+export type { ProjectStatus };
 
 type ProjectStatusPillProps = Readonly<{
   status: ProjectStatus;
