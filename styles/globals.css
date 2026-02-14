@@ -132,6 +132,16 @@ p {
   margin: 0 auto;
 }
 
+.app-shell__demo-banner {
+  border: 1px solid color-mix(in oklab, var(--border) 80%, white);
+  background: color-mix(in oklab, var(--panel) 88%, var(--bg));
+  color: color-mix(in oklab, var(--text-primary) 86%, white);
+  font-size: 0.87rem;
+  letter-spacing: 0.02em;
+  padding: 0.58rem 0.76rem;
+  margin-bottom: 1rem;
+}
+
 .app-shell__footer {
   border-top: 1px solid var(--border);
 }
@@ -375,6 +385,31 @@ p {
 
 .projects-dashboard__cta {
   justify-self: end;
+  display: grid;
+  justify-items: end;
+  gap: 0.55rem;
+}
+
+.projects-dashboard__sample-link {
+  color: color-mix(in oklab, var(--text-primary) 85%, var(--accent));
+  font-size: 0.86rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.projects-dashboard__sample-link:hover {
+  color: color-mix(in oklab, var(--accent) 80%, black);
+  border-color: color-mix(in oklab, var(--accent) 42%, white);
+}
+
+.projects-dashboard__sample-link:focus-visible {
+  outline: none;
+  box-shadow: 0 2px 0 0 color-mix(in oklab, var(--accent) 28%, white);
 }
 
 .projects-dashboard__list {

@@ -23,7 +23,7 @@ export default function Hero() {
       </p>
 
       <div className="mk-hero__actions reveal reveal--4">
-        <Link aria-label="Start a project with Snap Plan Designs" className="mk-cta mk-cta--primary" href="/signup">
+        <Link aria-label="Start a project with Snap Plan Designs" className="mk-cta mk-cta--primary" href="/app">
           Start a Project
         </Link>
         <a aria-label="See how Snap Plan Designs works" className="mk-cta mk-cta--secondary" href="#how-it-works">

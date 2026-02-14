@@ -18,7 +18,7 @@ export default function MarketingPage() {
             <Link aria-label="Log in" className="mk-link-underline" href="/login">
               Log in
             </Link>
-            <Link aria-label="Start a project" className="mk-link-underline" href="/signup">
+            <Link aria-label="Start a project" className="mk-link-underline" href="/app">
               Start
             </Link>
           </nav>
@@ -86,7 +86,7 @@ export default function MarketingPage() {
 
         <section className="mk-final-cta reveal reveal--4" aria-label="Final call to action">
           <h2 className="mk-final-cta__title">Clarity first. Costly decisions second.</h2>
-          <Link aria-label="Start a project from final call to action" className="mk-cta mk-cta--primary" href="/signup">
+          <Link aria-label="Start a project from final call to action" className="mk-cta mk-cta--primary" href="/app">
             Start a Project
           </Link>
           <p className="mk-final-cta__subtext">Remote. Fast. Built for real execution.</p>

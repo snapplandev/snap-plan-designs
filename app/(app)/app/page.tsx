@@ -62,6 +62,9 @@ export default function AppPage() {
           <Link aria-label="Create a new project" className="button button--primary" href="/app/projects/new">
             New Project
           </Link>
+          <Link aria-label="Open sample project workspace" className="projects-dashboard__sample-link" href="/app/projects/1">
+            Open sample project
+          </Link>
         </div>
       </header>
 

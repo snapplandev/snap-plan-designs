@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { hasSupabasePublicEnv } from "@/lib/supabase/env-public";
+
 type AppShellProps = Readonly<{
   children: React.ReactNode;
 }>;
@@ -9,6 +11,8 @@ type AppShellProps = Readonly<{
  * Edge case: header navigation wraps on narrow widths without truncating links.
  */
 export default function AppShell({ children }: AppShellProps) {
+  const isDemoMode = !hasSupabasePublicEnv();
+
   return (
     <div className="app-shell">
       <header className="app-shell__header">
@@ -21,10 +25,10 @@ export default function AppShell({ children }: AppShellProps) {
             Snap Plan Designs
           </Link>
           <nav aria-label="Primary navigation" className="app-shell__nav">
-            <Link className="app-shell__nav-link" href="/app/projects">
+            <Link className="app-shell__nav-link" href="/app">
               Projects
             </Link>
-            <Link className="app-shell__nav-link" href="/app/account">
+            <Link className="app-shell__nav-link" href="/login">
               Account
             </Link>
           </nav>
@@ -32,7 +36,14 @@ export default function AppShell({ children }: AppShellProps) {
       </header>
 
       <main className="app-shell__main" id="main-content">
-        <div className="app-shell__container">{children}</div>
+        <div className="app-shell__container">
+          {isDemoMode ? (
+            <p className="app-shell__demo-banner" role="status">
+              Demo mode — authentication and storage will activate once Supabase is configured.
+            </p>
+          ) : null}
+          {children}
+        </div>
       </main>
 
       <footer className="app-shell__footer">

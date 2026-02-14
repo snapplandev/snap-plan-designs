@@ -39,7 +39,7 @@ export default function PricingTable() {
           <Link
             aria-label={`Start with ${pkg.name}`}
             className="mk-link-underline"
-            href="/signup"
+            href="/app"
           >
             Start with {pkg.name}
           </Link>

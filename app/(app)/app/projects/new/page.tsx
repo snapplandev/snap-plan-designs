@@ -268,7 +268,7 @@ export default function NewProjectPage() {
     }
     dispatch({
       type: "SET_NOTICE",
-      notice: "Intake captured. Redirecting to your project dashboard...",
+      notice: "Intake captured. Redirecting to your sample project workspace...",
     });
     dispatch({ type: "SET_SUBMIT_PENDING", submitPending: true });
 
