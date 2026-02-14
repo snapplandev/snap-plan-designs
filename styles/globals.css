@@ -1,6 +1,56 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap");
 @import "tailwindcss";
 
+:root {
+  --bg: #f4f1ea;
+  --panel: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --accent: #7b1e2b;
+  --accent-soft: #cbb8b3;
+  --border: #e4dfd6;
+  --success: #2f5d50;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
 body {
-  background: #ffffff;
-  color: #171717;
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--accent-soft);
+  text-underline-offset: 0.15em;
+}
+
+p {
+  color: var(--text-primary);
 }
