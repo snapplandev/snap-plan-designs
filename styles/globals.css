@@ -159,6 +159,9 @@ p {
 
 .button {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
   border: 1px solid transparent;
   font-family: inherit;
@@ -174,6 +177,7 @@ p {
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
+  text-decoration: none;
 }
 
 .button:hover {
@@ -519,6 +523,397 @@ p {
   margin-top: 0.25rem;
 }
 
+/* intake wizard */
+.intake-wizard {
+  padding-top: clamp(0.4rem, 1vw, 0.9rem);
+}
+
+.intake-wizard__frame {
+  background: var(--panel);
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  box-shadow: 0 16px 34px color-mix(in oklab, black 7%, transparent);
+  display: grid;
+  grid-template-columns: minmax(15.5rem, 18.5rem) minmax(0, 1fr);
+  min-height: clamp(38rem, 78dvh, 52rem);
+}
+
+.intake-wizard__rail {
+  border-right: 1px solid color-mix(in oklab, var(--border) 82%, white);
+  padding: clamp(1.35rem, 2.5vw, 1.9rem) clamp(1.1rem, 2vw, 1.45rem);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--accent-soft) 12%, white) 0%,
+      color-mix(in oklab, var(--panel) 92%, var(--bg)) 100%
+    );
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.intake-wizard__kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--text-muted) 86%, white);
+}
+
+.intake-wizard__steps {
+  list-style: none;
+  display: grid;
+  gap: 0.68rem;
+  padding: 0;
+}
+
+.intake-wizard__step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.58rem;
+}
+
+.intake-wizard__step-index {
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--border) 74%, white);
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+}
+
+.intake-wizard__step-index--current {
+  border-color: color-mix(in oklab, var(--accent) 44%, var(--border));
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent-soft) 24%, white);
+}
+
+.intake-wizard__step-index--complete {
+  border-color: color-mix(in oklab, var(--accent-soft) 70%, var(--border));
+  color: color-mix(in oklab, var(--accent) 70%, var(--text-primary));
+}
+
+.intake-wizard__step-title {
+  font-size: 0.94rem;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+
+.intake-wizard__step-title--current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.intake-wizard__current {
+  margin-top: 0.6rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  font-size: 0.8rem;
+  color: color-mix(in oklab, var(--text-muted) 88%, white);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.intake-wizard__panel {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100%;
+}
+
+.intake-wizard__content {
+  padding: clamp(1.6rem, 3.3vw, 2.6rem);
+}
+
+.intake-wizard__actions {
+  border-top: 1px solid color-mix(in oklab, var(--border) 82%, white);
+  padding: 1rem clamp(1.2rem, 3vw, 2rem) 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+}
+
+.intake-step {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.intake-step__body {
+  display: grid;
+  gap: 1.12rem;
+  max-width: 56rem;
+}
+
+.intake-step-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.intake-step-header__title {
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+}
+
+.intake-step-header__guidance {
+  color: var(--text-muted);
+  max-width: 58ch;
+}
+
+.intake-step-header__rule {
+  margin-top: 0.2rem;
+  width: min(12.5rem, 42vw);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--accent) 74%, black) 0%,
+    color-mix(in oklab, var(--accent-soft) 78%, white) 100%
+  );
+}
+
+.intake-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.intake-grid--two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.intake-field {
+  display: grid;
+  gap: 0.46rem;
+}
+
+.intake-field__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.intake-field__required {
+  color: color-mix(in oklab, var(--accent) 75%, black);
+}
+
+.intake-field__helper {
+  color: color-mix(in oklab, var(--text-muted) 90%, white);
+  font-size: 0.9rem;
+}
+
+.intake-field__control {
+  border-top: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  padding-top: 0.55rem;
+}
+
+.intake-field__error {
+  color: color-mix(in oklab, var(--accent) 68%, black);
+  font-size: 0.82rem;
+}
+
+.intake-input {
+  width: 100%;
+  appearance: none;
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  background-color: color-mix(in oklab, var(--panel) 91%, var(--bg));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  padding: 0.74rem 0.82rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.intake-input--textarea {
+  resize: vertical;
+  min-height: 6.75rem;
+}
+
+.intake-input--select {
+  cursor: pointer;
+}
+
+.intake-input:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--accent) 53%, white);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--accent-soft) 40%, white),
+    0 0 0 4px color-mix(in oklab, var(--accent) 22%, white);
+  background-color: var(--panel);
+}
+
+.intake-upload {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.intake-upload__dropzone {
+  border: 1px dashed color-mix(in oklab, var(--border) 74%, white);
+  background: color-mix(in oklab, var(--panel) 95%, var(--bg));
+  padding: clamp(1.2rem, 3vw, 2rem);
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.intake-upload__dropzone--active {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
+  background: color-mix(in oklab, var(--accent-soft) 18%, white);
+}
+
+.intake-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intake-upload__title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.55rem;
+  line-height: 1.02;
+}
+
+.intake-upload__hint {
+  color: var(--text-muted);
+}
+
+.intake-upload__choose {
+  margin-top: 0.2rem;
+}
+
+.intake-upload__empty {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.intake-upload__list {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0;
+}
+
+.intake-upload__item {
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  padding: 0.72rem 0.84rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+}
+
+.intake-upload__meta {
+  min-width: 0;
+}
+
+.intake-upload__filename {
+  font-size: 0.94rem;
+  overflow-wrap: anywhere;
+}
+
+.intake-upload__detail {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.intake-upload__remove {
+  appearance: none;
+  border: 1px solid color-mix(in oklab, var(--border) 72%, white);
+  background: transparent;
+  color: color-mix(in oklab, var(--accent) 86%, black);
+  font: inherit;
+  font-size: 0.84rem;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.intake-upload__remove:hover {
+  border-color: color-mix(in oklab, var(--accent) 40%, var(--border));
+  background: color-mix(in oklab, var(--accent-soft) 24%, white);
+}
+
+.intake-upload__remove:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--panel),
+    0 0 0 4px color-mix(in oklab, var(--accent) 24%, white);
+}
+
+.intake-review {
+  display: grid;
+  gap: 1rem;
+}
+
+.intake-review__section {
+  border: 1px solid color-mix(in oklab, var(--border) 84%, white);
+  background: color-mix(in oklab, var(--panel) 96%, var(--bg));
+  padding: 0.95rem 1rem;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.intake-review__heading {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.intake-review__list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.intake-review__row {
+  display: grid;
+  gap: 0.18rem;
+  border-top: 1px solid color-mix(in oklab, var(--border) 88%, white);
+  padding-top: 0.45rem;
+}
+
+.intake-review__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.intake-review__row dt {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.intake-review__row dd {
+  font-size: 0.98rem;
+  white-space: pre-wrap;
+}
+
+.intake-submit-notice {
+  border: 1px solid color-mix(in oklab, var(--success) 34%, var(--border));
+  background: color-mix(in oklab, var(--success) 10%, var(--panel));
+  color: color-mix(in oklab, var(--success) 70%, black);
+  padding: 0.72rem 0.82rem;
+}
+
+.intake-submit-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
 @media (max-width: 900px) {
   .projects-dashboard__header {
     grid-template-columns: 1fr;
@@ -526,5 +921,38 @@ p {
 
   .projects-dashboard__cta {
     justify-self: start;
+  }
+
+  .intake-grid--two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .intake-wizard__frame {
+    grid-template-columns: 1fr;
+  }
+
+  .intake-wizard__rail {
+    border-right: 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 82%, white);
+  }
+
+  .intake-wizard__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .intake-wizard__steps {
+    grid-template-columns: 1fr;
+  }
+
+  .intake-wizard__actions {
+    flex-direction: column-reverse;
+  }
+
+  .intake-wizard__actions .button {
+    width: 100%;
   }
 }

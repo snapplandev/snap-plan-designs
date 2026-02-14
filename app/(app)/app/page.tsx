@@ -1,7 +1,8 @@
+import Link from "next/link";
+
 import EmptyState from "@/components/projects/EmptyState";
 import ProjectCard from "@/components/projects/ProjectCard";
 import type { ProjectStatus } from "@/components/projects/ProjectStatusPill";
-import Button from "@/components/ui/Button";
 
 type MockProject = {
   id: string;
@@ -58,7 +59,9 @@ export default function AppPage() {
         </div>
 
         <div className="projects-dashboard__cta">
-          <Button aria-label="Create a new project">New Project</Button>
+          <Link aria-label="Create a new project" className="button button--primary" href="/app/projects/new">
+            New Project
+          </Link>
         </div>
       </header>
 
