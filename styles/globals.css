@@ -4,6 +4,7 @@
 :root {
   --bg: #f4f1ea;
   --panel: #ffffff;
+  --text: #1a1a1a;
   --text-primary: #1a1a1a;
   --text-muted: #6b6b6b;
   --accent: #7b1e2b;
@@ -53,4 +54,164 @@ a {
 
 p {
   color: var(--text-primary);
+}
+
+/* components */
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.app-shell__header {
+  border-bottom: 1px solid var(--border);
+  background-color: var(--panel);
+}
+
+.app-shell__header-inner {
+  width: min(100%, 1400px);
+  margin: 0 auto;
+  padding: 1rem clamp(1.25rem, 3vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-shell__wordmark {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.55rem, 2.2vw, 2rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+
+.app-shell__nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.app-shell__nav-link {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.app-shell__nav-link:hover {
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+
+.app-shell__nav-link:focus-visible,
+.app-shell__wordmark:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--accent) 65%, white);
+  outline-offset: 3px;
+}
+
+.app-shell__main {
+  flex: 1;
+  padding: clamp(2.5rem, 6vw, 5rem) clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.app-shell__container {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.app-shell__footer {
+  border-top: 1px solid var(--border);
+}
+
+.app-shell__footer-inner {
+  padding: 1rem clamp(1.25rem, 3vw, 2.5rem) 1.75rem;
+}
+
+.app-shell__footer-copy {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+}
+
+.app-dashboard-proof {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: clamp(1.75rem, 3.25vw, 3rem);
+  border: 1px solid var(--border);
+  background-color: color-mix(in oklab, var(--panel) 92%, var(--bg));
+}
+
+.app-dashboard-proof__title {
+  font-size: clamp(2rem, 3vw, 3.1rem);
+}
+
+.button {
+  appearance: none;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  padding: 0.8rem 1.35rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--panel),
+    0 0 0 4px color-mix(in oklab, var(--accent) 65%, white);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.55;
+  transform: none;
+}
+
+.button--primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.button--primary:hover {
+  background-color: color-mix(in oklab, var(--accent) 86%, black);
+  border-color: color-mix(in oklab, var(--accent) 86%, black);
+}
+
+.button--ghost {
+  background-color: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.button--ghost:hover {
+  background-color: var(--accent);
+  color: #ffffff;
 }
