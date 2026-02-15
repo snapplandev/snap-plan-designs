@@ -2450,7 +2450,7 @@ p {
   outline-offset: 3px;
 }
 
-.mk-nav__actions .mk-link-underline {
+.mk-nav__actions .mk-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2472,37 +2472,8 @@ p {
     transform 0.2s ease;
 }
 
-.mk-nav__actions .mk-link-underline::after {
-  content: none;
-}
-
-.mk-nav__actions .mk-link-underline:hover {
+.mk-nav__actions .mk-cta:hover {
   transform: translateY(-1px);
-}
-
-.mk-nav__actions .mk-link-underline:first-child {
-  border-color: color-mix(in oklab, var(--border) 70%, var(--accent-soft));
-  color: var(--text);
-  background: transparent;
-}
-
-.mk-nav__actions .mk-link-underline:first-child:hover {
-  border-color: color-mix(in oklab, var(--accent) 42%, var(--border));
-  background: color-mix(in oklab, white 5%, transparent);
-}
-
-.mk-nav__actions .mk-link-underline:last-child {
-  border-color: color-mix(in oklab, var(--gold) 78%, black);
-  background: var(--gold);
-  color: var(--bg);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, white 35%, transparent);
-}
-
-.mk-nav__actions .mk-link-underline:last-child:hover {
-  background: color-mix(in oklab, var(--gold) 88%, black);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 30%, transparent),
-    0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .mk-hero {

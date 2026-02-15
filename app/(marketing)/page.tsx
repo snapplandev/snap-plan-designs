@@ -16,10 +16,10 @@ export default function MarketingPage() {
             Snap Plan Designs
           </Link>
           <nav className="mk-nav__actions" aria-label="Account actions">
-            <Link aria-label="Log in" className="mk-link-underline" href="/login">
+            <Link aria-label="Log in" className="mk-cta mk-cta--secondary" href="/login">
               Log in
             </Link>
-            <Link aria-label="Start a project" className="mk-link-underline" href={appHome()}>
+            <Link aria-label="Start a project" className="mk-cta mk-cta--primary" href={appHome()}>
               Start
             </Link>
           </nav>
