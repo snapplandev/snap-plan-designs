@@ -8,6 +8,7 @@ export const mockProjects: Project[] = [
     propertyType: "Remodel",
     status: "in_progress",
     updatedAt: "2026-02-12",
+    unreadCount: 1,
   },
   {
     id: "2",
@@ -16,6 +17,7 @@ export const mockProjects: Project[] = [
     propertyType: "Addition",
     status: "submitted",
     updatedAt: "2026-02-10",
+    unreadCount: 2,
   },
   {
     id: "3",
@@ -24,6 +26,7 @@ export const mockProjects: Project[] = [
     propertyType: "New Build",
     status: "delivered",
     updatedAt: "2026-02-08",
+    unreadCount: 0,
   },
   {
     id: "4",
@@ -32,6 +35,7 @@ export const mockProjects: Project[] = [
     propertyType: "Renovation",
     status: "in_review",
     updatedAt: "2026-02-03",
+    unreadCount: 0,
   },
 ];
 
@@ -55,12 +59,14 @@ export const mockProjectDetails: ProjectDetailsById = {
       {
         id: "message-1",
         sender: "Snap Plan",
+        type: "user",
         body: "Intake package received. We are reviewing your references and scope notes.",
         createdAt: "2026-02-11T10:18:00.000Z",
       },
       {
         id: "message-2",
         sender: "Client",
+        type: "user",
         body: "Great. Please prioritize kitchen circulation and pantry access in the first pass.",
         createdAt: "2026-02-11T13:42:00.000Z",
       },
@@ -119,6 +125,7 @@ export const mockProjectDetails: ProjectDetailsById = {
       {
         id: "message-3",
         sender: "Snap Plan",
+        type: "user",
         body: "Your archival drawings were imported for baseline alignment.",
         createdAt: "2026-02-10T08:11:00.000Z",
       },
@@ -154,6 +161,7 @@ export const mockProjectDetails: ProjectDetailsById = {
       {
         id: "message-4",
         sender: "Snap Plan",
+        type: "user",
         body: "Permit-ready sheets are complete and uploaded to deliverables.",
         createdAt: "2026-02-08T16:20:00.000Z",
       },

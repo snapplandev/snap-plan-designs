@@ -8,6 +8,7 @@ type ProjectCardProps = Readonly<{
   location: string;
   status: ProjectStatus;
   updatedAt: string;
+  unreadCount: number;
   projectHref?: string;
 }>;
 
@@ -38,7 +39,14 @@ function formatDate(updatedAt: string): string {
  * Refined folio panel for a single client project.
  * Edge case: malformed dates degrade to a neutral "Recently" label.
  */
-export default function ProjectCard({ title, location, status, updatedAt, projectHref }: ProjectCardProps) {
+export default function ProjectCard({
+  title,
+  location,
+  status,
+  updatedAt,
+  unreadCount,
+  projectHref,
+}: ProjectCardProps) {
   return (
     <article className="project-folio" aria-label={`Project ${title}`}>
       <div aria-hidden="true" className="project-folio__edge" />
@@ -49,7 +57,14 @@ export default function ProjectCard({ title, location, status, updatedAt, projec
       </div>
 
       <div className="project-folio__content">
-        <h2 className="project-folio__title">{title}</h2>
+        <div className="project-folio__title-row">
+          <h2 className="project-folio__title">{title}</h2>
+          {unreadCount > 0 ? (
+            <span className="project-folio__updates-badge" role="status">
+              Updates: {unreadCount}
+            </span>
+          ) : null}
+        </div>
         <p className="project-folio__subtitle">{location}</p>
       </div>
 

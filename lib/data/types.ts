@@ -7,6 +7,7 @@ export type ProjectStatus =
   | "closed";
 
 export type MessageSender = "Client" | "Snap Plan";
+export type MessageType = "user" | "system";
 
 export type RevisionStatus = "open" | "in_progress" | "resolved" | "declined";
 
@@ -19,13 +20,24 @@ export type Project = {
   propertyType: string;
   status: ProjectStatus;
   updatedAt: string;
+  unreadCount: number;
+};
+
+export type MessageMeta = {
+  event: string;
+  from?: string;
+  to?: string;
+  revisionId?: string;
+  revisionStatus?: RevisionStatus;
 };
 
 export type Message = {
   id: string;
   sender: MessageSender;
+  type: MessageType;
   body: string;
   createdAt: string;
+  meta?: MessageMeta;
 };
 
 export type Revision = {

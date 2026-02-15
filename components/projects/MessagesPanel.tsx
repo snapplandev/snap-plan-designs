@@ -57,17 +57,35 @@ export default function MessagesPanel({ messages, onAddMessage }: MessagesPanelP
 
       <ol className="messages-panel__thread" aria-label="Message thread">
         {messages.length === 0 ? <li className="messages-panel__item">No messages yet.</li> : null}
-        {messages.map((message) => (
-          <li className="messages-panel__item" key={message.id}>
-            <div className="messages-panel__item-header">
-              <span className="messages-panel__sender">{message.sender}</span>
-              <time className="messages-panel__timestamp" dateTime={message.createdAt}>
-                {formatMessageDate(message.createdAt)}
-              </time>
-            </div>
-            <p className="messages-panel__body">{message.body}</p>
-          </li>
-        ))}
+        {messages.map((message) => {
+          const isSystemMessage = message.type === "system";
+          if (isSystemMessage) {
+            return (
+              <li className="messages-panel__item messages-panel__item--system" key={message.id}>
+                <div className="messages-panel__system-entry">
+                  <span aria-hidden="true" className="messages-panel__system-line" />
+                  <p className="messages-panel__system-body">{message.body}</p>
+                  <time className="messages-panel__timestamp messages-panel__timestamp--system" dateTime={message.createdAt}>
+                    {formatMessageDate(message.createdAt)}
+                  </time>
+                  <span aria-hidden="true" className="messages-panel__system-line" />
+                </div>
+              </li>
+            );
+          }
+
+          return (
+            <li className="messages-panel__item messages-panel__item--user" key={message.id}>
+              <div className="messages-panel__item-header">
+                <span className="messages-panel__sender">{message.sender}</span>
+                <time className="messages-panel__timestamp" dateTime={message.createdAt}>
+                  {formatMessageDate(message.createdAt)}
+                </time>
+              </div>
+              <p className="messages-panel__body">{message.body}</p>
+            </li>
+          );
+        })}
       </ol>
 
       <div className="messages-panel__composer">

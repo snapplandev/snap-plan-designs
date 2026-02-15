@@ -6,7 +6,9 @@ import {
 import type {
   CreateProjectDraftInput,
   Message,
+  MessageMeta,
   MessageSender,
+  MessageType,
   Project,
   ProjectDetails,
   ProjectDetailsById,
@@ -25,6 +27,12 @@ const DEFAULT_PACKAGE_DETAILS = {
   revisionsIncluded: "2 rounds included",
   turnaround: "7-10 business days",
 } as const;
+
+const STATUS_CHANGE_SYSTEM_MESSAGES: Partial<Record<Project["status"], string>> = {
+  in_review: "Project is in review.",
+  in_progress: "Drafting is in progress.",
+  delivered: "Deliverables uploaded.",
+};
 
 let latestDataError: string | null = null;
 
@@ -186,6 +194,64 @@ function buildSummaryFromIntakeInput(
   };
 }
 
+type CreateMessageInput = {
+  sender: MessageSender;
+  type: MessageType;
+  body: string;
+  createdAt?: string;
+  meta?: MessageMeta;
+};
+
+function shouldIncrementUnreadCount(message: Message): boolean {
+  return message.type === "system" || message.sender === "Snap Plan";
+}
+
+function appendMessageToProject(projectId: string, input: CreateMessageInput): Message | null {
+  const projectDetails = demoProjectDetailsState[projectId];
+  if (!projectDetails) {
+    return null;
+  }
+
+  const normalizedBody = normalizeText(input.body);
+  if (normalizedBody.length === 0) {
+    return null;
+  }
+
+  const createdAt = input.createdAt ?? new Date().toISOString();
+  const nextMessage: Message = {
+    id: createEntityId("message"),
+    sender: input.sender,
+    type: input.type,
+    body: normalizedBody,
+    createdAt,
+    meta: input.meta,
+  };
+  const nextUnreadCount = shouldIncrementUnreadCount(nextMessage)
+    ? projectDetails.project.unreadCount + 1
+    : projectDetails.project.unreadCount;
+
+  demoProjectDetailsState[projectId] = {
+    ...projectDetails,
+    project: {
+      ...projectDetails.project,
+      unreadCount: nextUnreadCount,
+    },
+    messages: [...projectDetails.messages, nextMessage],
+  };
+
+  markProjectUpdated(projectId, createdAt);
+  return cloneMessage(nextMessage);
+}
+
+function appendSystemMessage(projectId: string, body: string, meta?: MessageMeta): Message | null {
+  return appendMessageToProject(projectId, {
+    sender: "Snap Plan",
+    type: "system",
+    body,
+    meta,
+  });
+}
+
 function ensureLiveModeUnsupported(): void {
   if (!isDemoMode()) {
     throw new Error(LIVE_MODE_ERROR);
@@ -286,6 +352,34 @@ export async function getProjectById(id: string): Promise<ProjectDetails | null>
 }
 
 /**
+ * Resets demo unread indicators for a project when the client opens the workspace.
+ * Edge case: missing project ids return null and preserve current in-memory state.
+ */
+export async function markProjectRead(projectId: string): Promise<Project | null> {
+  ensureLiveModeUnsupported();
+
+  const projectDetails = demoProjectDetailsState[projectId];
+  if (!projectDetails) {
+    return null;
+  }
+  if (projectDetails.project.unreadCount === 0) {
+    return cloneProject(projectDetails.project);
+  }
+
+  const nextProject: Project = {
+    ...projectDetails.project,
+    unreadCount: 0,
+  };
+  demoProjectDetailsState[projectId] = {
+    ...projectDetails,
+    project: nextProject,
+  };
+  upsertProject(nextProject);
+
+  return cloneProject(nextProject);
+}
+
+/**
  * Creates a new draft project and inserts it into the in-memory demo store.
  * Edge case: blank title/location inputs are normalized to safe fallback labels.
  */
@@ -301,6 +395,7 @@ export async function createProjectDraft(input: CreateProjectDraftInput): Promis
     propertyType: toTitleCase(normalizeText(input.propertyType) || "unspecified"),
     status: "draft",
     updatedAt: formatUpdatedAt(nowIsoTimestamp),
+    unreadCount: 0,
   };
 
   const draftDetails: ProjectDetails = {
@@ -382,6 +477,7 @@ export async function submitIntake(
     return null;
   }
 
+  const previousStatus = projectDetails.project.status;
   const nextSummary: ProjectDetails["summary"] = buildSummaryFromIntakeInput(intakePayload);
   const nextLocation =
     intakePayload.city !== undefined || intakePayload.state !== undefined
@@ -418,7 +514,13 @@ export async function submitIntake(
 
   demoProjectDetailsState[projectId] = nextDetails;
   upsertProject(nextProject);
-  return cloneProjectDetails(nextDetails);
+  appendSystemMessage(projectId, "Intake submitted. We'll review and confirm any questions.", {
+    event: "intake_submitted",
+    from: previousStatus,
+    to: "submitted",
+  });
+
+  return cloneProjectDetails(demoProjectDetailsState[projectId]);
 }
 
 /**
@@ -431,31 +533,11 @@ export async function addMessage(
   sender: MessageSender = "Client",
 ): Promise<Message | null> {
   ensureLiveModeUnsupported();
-
-  const projectDetails = demoProjectDetailsState[projectId];
-  if (!projectDetails) {
-    return null;
-  }
-
-  const normalizedBody = normalizeText(body);
-  if (normalizedBody.length === 0) {
-    return null;
-  }
-
-  const nextMessage: Message = {
-    id: createEntityId("message"),
+  return appendMessageToProject(projectId, {
     sender,
-    body: normalizedBody,
-    createdAt: new Date().toISOString(),
-  };
-
-  demoProjectDetailsState[projectId] = {
-    ...projectDetails,
-    messages: [...projectDetails.messages, nextMessage],
-  };
-
-  markProjectUpdated(projectId, nextMessage.createdAt);
-  return cloneMessage(nextMessage);
+    type: "user",
+    body,
+  });
 }
 
 /**
@@ -495,6 +577,12 @@ export async function addRevision(
   };
 
   markProjectUpdated(projectId, nextRevision.createdAt);
+  appendSystemMessage(projectId, `Revision requested: ${nextRevision.title}`, {
+    event: "revision_requested",
+    revisionId: nextRevision.id,
+    revisionStatus: nextRevision.status,
+  });
+
   return cloneRevision(nextRevision);
 }
 
@@ -524,6 +612,13 @@ export async function addFiles(projectId: string, files: ProjectFileInput[]): Pr
   };
 
   markProjectUpdated(projectId, nextFiles[0].createdAt);
+  const hasExplicitDeliverable = files.some((file) => file.group === "deliverable");
+  if (hasExplicitDeliverable) {
+    appendSystemMessage(projectId, "Deliverables uploaded.", {
+      event: "deliverable_uploaded",
+    });
+  }
+
   return demoProjectDetailsState[projectId].files.map(cloneProjectFile);
 }
 
@@ -542,6 +637,7 @@ export async function setProjectStatus(
     return null;
   }
 
+  const previousStatus = projectDetails.project.status;
   const nowIsoTimestamp = new Date().toISOString();
   const nextProject: Project = {
     ...projectDetails.project,
@@ -554,7 +650,19 @@ export async function setProjectStatus(
     project: nextProject,
   };
   upsertProject(nextProject);
-  return cloneProject(nextProject);
+
+  if (previousStatus !== status) {
+    const statusChangeBody = STATUS_CHANGE_SYSTEM_MESSAGES[status];
+    if (statusChangeBody) {
+      appendSystemMessage(projectId, statusChangeBody, {
+        event: "status_change",
+        from: previousStatus,
+        to: status,
+      });
+    }
+  }
+
+  return cloneProject(demoProjectDetailsState[projectId].project);
 }
 
 /**
@@ -577,6 +685,7 @@ export async function addDeliverable(
     return null;
   }
 
+  const previousStatus = projectDetails.project.status;
   const nextProject: Project = {
     ...projectDetails.project,
     status: "delivered",
@@ -590,6 +699,12 @@ export async function addDeliverable(
 
   demoProjectDetailsState[projectId] = nextDetails;
   upsertProject(nextProject);
+  appendSystemMessage(projectId, "Deliverables uploaded.", {
+    event: "deliverable_uploaded",
+    from: previousStatus,
+    to: "delivered",
+  });
+
   return cloneProjectFile(nextDeliverable);
 }
 
@@ -630,6 +745,7 @@ export async function updateRevisionStatus(
   if (!targetRevision) {
     return null;
   }
+  const previousStatus = targetRevision.status;
 
   const nextRevision: Revision = { ...targetRevision, status };
   nextRevisions[revisionIndex] = nextRevision;
@@ -638,7 +754,16 @@ export async function updateRevisionStatus(
     ...projectDetails,
     revisions: nextRevisions,
   };
-  markProjectUpdated(projectId, new Date().toISOString());
+
+  if (previousStatus !== status && (status === "resolved" || status === "declined")) {
+    appendSystemMessage(projectId, `Revision ${status}: ${nextRevision.title}`, {
+      event: status === "resolved" ? "revision_resolved" : "revision_declined",
+      revisionId: nextRevision.id,
+      revisionStatus: status,
+    });
+  } else {
+    markProjectUpdated(projectId, new Date().toISOString());
+  }
 
   return cloneRevision(nextRevision);
 }

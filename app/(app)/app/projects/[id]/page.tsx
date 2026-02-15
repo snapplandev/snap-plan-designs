@@ -16,6 +16,7 @@ import {
   addRevision,
   getDataClientError,
   getProjectById,
+  markProjectRead,
 } from "@/lib/data/client";
 import type { ProjectDetails, ProjectFileInput, ProjectStatus, RevisionStatus } from "@/lib/data/types";
 import { isDemoMode } from "@/lib/runtime/mode";
@@ -49,6 +50,9 @@ export default function ProjectWorkspacePage() {
       return;
     }
     try {
+      if (demoMode) {
+        await markProjectRead(projectId);
+      }
       const nextProject = await getProjectById(projectId);
       setProjectDetails(nextProject);
       setLoadError(getDataClientError());
@@ -59,7 +63,7 @@ export default function ProjectWorkspacePage() {
       setProjectDetails(undefined);
       setLoadError(error instanceof Error ? error.message : "Unable to load project.");
     }
-  }, [projectId]);
+  }, [demoMode, projectId]);
 
   useEffect(() => {
     void loadProject();

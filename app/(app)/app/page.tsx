@@ -101,6 +101,7 @@ export default function AppPage() {
                 location={project.location}
                 status={project.status}
                 updatedAt={project.updatedAt}
+                unreadCount={project.unreadCount}
               />
             </div>
           ))

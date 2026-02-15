@@ -1005,11 +1005,31 @@ p {
   gap: 0.25rem;
 }
 
+.project-folio__title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
 .project-folio__title {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: clamp(1.65rem, 2.8vw, 2.2rem);
   line-height: 1.03;
   letter-spacing: 0.01em;
+}
+
+.project-folio__updates-badge {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5f1f2d;
+  border: 1px solid color-mix(in oklab, #5f1f2d 45%, var(--border));
+  background: color-mix(in oklab, #5f1f2d 6%, var(--panel));
+  border-radius: 999px;
+  padding: 0.17rem 0.5rem;
+  white-space: nowrap;
 }
 
 .project-folio__subtitle {
@@ -2066,18 +2086,27 @@ p {
   list-style: none;
   display: grid;
   padding: 0;
+  gap: 0;
 }
 
 .messages-panel__item {
-  border-top: 1px solid color-mix(in oklab, var(--border) 88%, white);
-  padding: 0.78rem 0;
   display: grid;
   gap: 0.36rem;
 }
 
-.messages-panel__thread .messages-panel__item:first-child {
+.messages-panel__item--user {
+  border-top: 1px solid color-mix(in oklab, var(--border) 88%, white);
+  padding: 0.78rem 0;
+}
+
+.messages-panel__thread .messages-panel__item--user:first-child {
   border-top: 0;
   padding-top: 0;
+}
+
+.messages-panel__item--system {
+  border-top: 0;
+  padding: 0.5rem 0;
 }
 
 .messages-panel__item-header {
@@ -2103,6 +2132,33 @@ p {
 .messages-panel__body {
   font-size: 0.94rem;
   white-space: pre-wrap;
+}
+
+.messages-panel__system-entry {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.34rem;
+}
+
+.messages-panel__system-line {
+  width: 100%;
+  height: 1px;
+  background: color-mix(in oklab, var(--border) 86%, white);
+}
+
+.messages-panel__system-body {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  font-variant: all-small-caps;
+  text-transform: lowercase;
+}
+
+.messages-panel__timestamp--system {
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .messages-panel__composer {

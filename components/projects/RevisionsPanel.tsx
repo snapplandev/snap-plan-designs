@@ -85,7 +85,7 @@ export default function RevisionsPanel({ revisions, onAddRevision }: RevisionsPa
         <div>
           <h2 className="workspace-panel__title">Revisions</h2>
           <p className="workspace-panel__subtitle">
-            Track change requests with clear ownership and status.
+            Track change requests with clear ownership, status, and message-timeline audit entries.
           </p>
         </div>
         <Button
