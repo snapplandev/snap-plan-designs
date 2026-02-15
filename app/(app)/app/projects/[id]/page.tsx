@@ -67,6 +67,7 @@ export default function ProjectWorkspacePage() {
   }, [demoMode, projectId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load is effect-driven for client-side adapter hydration.
     void loadProject();
   }, [loadProject]);
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { appHome } from "@/lib/routes";
+import { appHome, home, login } from "@/lib/routes";
 
 export default function NotFoundPage() {
   return (
@@ -13,10 +13,10 @@ export default function NotFoundPage() {
         </p>
 
         <nav aria-label="Recovery navigation" className="global-not-found__actions">
-          <Link className="button button--primary" href="/">
+          <Link className="button button--primary" href={home()}>
             Home
           </Link>
-          <Link className="button button--ghost" href="/login">
+          <Link className="button button--ghost" href={login()}>
             Log in
           </Link>
           <Link className="button button--ghost" href={appHome()}>

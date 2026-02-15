@@ -2,8 +2,37 @@
 @import "tailwindcss";
 
 :root {
+  --container-max: 1160px;
+  --gutter: clamp(20px, 5vw, 64px);
+  --section-y: clamp(56px, 7vw, 104px);
+
+  --bg: #07080b;
+  --panel: #0c0f14;
+  --surface: #10151d;
+  --border: rgba(255, 255, 255, 0.08);
+
+  --text: rgba(255, 255, 255, 0.92);
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-muted: rgba(255, 255, 255, 0.62);
+
+  --accent: #7b1e2b;
+  --accent-soft: rgba(123, 30, 43, 0.18);
+
+  --gold: #caa24a;
+  --gold-soft: rgba(202, 162, 74, 0.18);
+
+  --success: #2f5d50;
+  --focus-ring: rgba(123, 30, 43, 0.55);
+
+  --pill-bg: rgba(255, 255, 255, 0.04);
+  --pill-border: rgba(255, 255, 255, 0.1);
+  --pill-text: var(--text-muted);
+}
+
+[data-theme="light"] {
   --bg: #f4f1ea;
   --panel: #ffffff;
+  --surface: #ffffff;
   --text: #1a1a1a;
   --text-primary: #1a1a1a;
   --text-muted: #6b6b6b;
@@ -11,9 +40,9 @@
   --accent-soft: #cbb8b3;
   --border: #e4dfd6;
   --success: #2f5d50;
-  --container-max: 1160px;
-  --gutter: clamp(20px, 5vw, 64px);
-  --section-y: clamp(56px, 7vw, 104px);
+  --gold: #caa24a;
+  --gold-soft: rgba(202, 162, 74, 0.18);
+  --focus-ring: rgba(123, 30, 43, 0.35);
 }
 
 * {
@@ -51,8 +80,29 @@ h6 {
 
 a {
   color: inherit;
-  text-decoration-color: var(--accent-soft);
-  text-underline-offset: 0.15em;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.pill--accent {
+  --pill-bg: var(--accent-soft);
+  --pill-border: rgba(123, 30, 43, 0.35);
+  --pill-text: var(--text);
+}
+
+.pill--gold {
+  --pill-bg: var(--gold-soft);
+  --pill-border: rgba(202, 162, 74, 0.35);
+  --pill-text: var(--text);
 }
 
 p {
@@ -118,7 +168,7 @@ p {
 
 .app-shell__nav-link:focus-visible,
 .app-shell__wordmark:focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--accent) 65%, white);
+  outline-color: var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -234,7 +284,7 @@ p {
 
 .admin-shell__wordmark:focus-visible,
 .admin-shell__nav-link:focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--accent) 60%, white);
+  outline-color: var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -452,11 +502,8 @@ p {
 
 .admin-control:focus-visible,
 .admin-composer:focus-visible {
-  outline: none;
-  border-color: color-mix(in oklab, var(--accent) 56%, white);
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--accent-soft) 34%, white),
-    0 0 0 4px color-mix(in oklab, var(--accent) 22%, white);
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
 .admin-ops-panel__meta {
@@ -648,10 +695,7 @@ p {
 }
 
 .button:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--panel),
-    0 0 0 4px color-mix(in oklab, var(--accent) 65%, white);
+  border-color: color-mix(in oklab, var(--gold) 55%, var(--border));
 }
 
 .button:disabled {
@@ -662,25 +706,26 @@ p {
 }
 
 .button--primary {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: #ffffff;
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg);
 }
 
 .button--primary:hover {
-  background-color: color-mix(in oklab, var(--accent) 86%, black);
-  border-color: color-mix(in oklab, var(--accent) 86%, black);
+  background-color: color-mix(in oklab, var(--gold) 88%, black);
+  border-color: color-mix(in oklab, var(--gold) 88%, black);
 }
 
 .button--ghost {
   background-color: transparent;
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: color-mix(in oklab, var(--border) 70%, var(--accent-soft));
+  color: var(--text);
 }
 
 .button--ghost:hover {
-  background-color: var(--accent);
-  color: #ffffff;
+  background-color: var(--accent-soft);
+  border-color: color-mix(in oklab, var(--accent) 40%, var(--border));
+  color: var(--text);
 }
 
 .auth-shell {
@@ -696,12 +741,12 @@ p {
 
 .auth-panel {
   width: min(100%, 34rem);
-  background: var(--panel);
-  border: 1px solid color-mix(in oklab, var(--border) 78%, white);
+  background: var(--surface);
+  border: 1px solid var(--border);
   padding: clamp(1.6rem, 3.6vw, 2.7rem);
   display: grid;
   gap: 1rem;
-  box-shadow: 0 10px 36px color-mix(in oklab, black 6%, transparent);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
 }
 
 .auth-kicker {
@@ -756,12 +801,8 @@ p {
 }
 
 .auth-input:focus-visible {
-  outline: none;
-  border-color: color-mix(in oklab, var(--accent) 52%, white);
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--accent-soft) 40%, white),
-    0 0 0 4px color-mix(in oklab, var(--accent) 25%, white);
-  background-color: var(--panel);
+  border-color: var(--accent);
+  background-color: var(--surface);
 }
 
 .auth-actions {
@@ -957,8 +998,7 @@ p {
 }
 
 .projects-dashboard__sample-link:focus-visible {
-  outline: none;
-  box-shadow: 0 2px 0 0 color-mix(in oklab, var(--accent) 28%, white);
+  outline-offset: 3px;
 }
 
 .projects-dashboard__list {
@@ -967,9 +1007,6 @@ p {
 }
 
 .project-status-pill {
-  --pill-border: color-mix(in oklab, var(--border) 85%, white);
-  --pill-bg: color-mix(in oklab, var(--panel) 90%, var(--bg));
-  --pill-text: color-mix(in oklab, var(--text-primary) 88%, white);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1083,9 +1120,9 @@ p {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #5f1f2d;
-  border: 1px solid color-mix(in oklab, #5f1f2d 45%, var(--border));
-  background: color-mix(in oklab, #5f1f2d 6%, var(--panel));
+  color: color-mix(in oklab, var(--accent) 76%, var(--text-primary));
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--border));
+  background: color-mix(in oklab, var(--accent) 8%, var(--panel));
   border-radius: 999px;
   padding: 0.17rem 0.5rem;
   white-space: nowrap;
@@ -1347,12 +1384,8 @@ p {
 }
 
 .intake-input:focus-visible {
-  outline: none;
-  border-color: color-mix(in oklab, var(--accent) 53%, white);
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--accent-soft) 40%, white),
-    0 0 0 4px color-mix(in oklab, var(--accent) 22%, white);
-  background-color: var(--panel);
+  border-color: var(--accent);
+  background-color: var(--surface);
 }
 
 .intake-upload {
@@ -1456,10 +1489,7 @@ p {
 }
 
 .intake-upload__remove:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--panel),
-    0 0 0 4px color-mix(in oklab, var(--accent) 24%, white);
+  border-color: var(--accent);
 }
 
 .intake-review {
@@ -1654,8 +1684,7 @@ p {
 }
 
 .project-tabs__trigger:focus-visible {
-  outline: none;
-  box-shadow: 0 2px 0 0 color-mix(in oklab, var(--accent) 40%, white);
+  border-color: var(--accent);
 }
 
 .project-workspace__tab-panel {
@@ -1798,10 +1827,7 @@ p {
 }
 
 .billing-package:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--panel),
-    0 0 0 4px color-mix(in oklab, var(--accent) 24%, white);
+  border-color: color-mix(in oklab, var(--gold) 55%, var(--border));
 }
 
 .billing-package--selected {
@@ -1950,12 +1976,8 @@ p {
 }
 
 .workspace-input:focus-visible {
-  outline: none;
-  border-color: color-mix(in oklab, var(--accent) 50%, white);
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--accent-soft) 36%, white),
-    0 0 0 4px color-mix(in oklab, var(--accent) 20%, white);
-  background-color: var(--panel);
+  border-color: var(--accent);
+  background-color: var(--surface);
 }
 
 .workspace-input--textarea {
@@ -2430,8 +2452,7 @@ p {
 }
 
 .mk-link-underline:focus-visible {
-  outline: none;
-  box-shadow: 0 2px 0 0 color-mix(in oklab, var(--accent) 32%, white);
+  outline-offset: 3px;
 }
 
 .mk-hero {
@@ -2526,29 +2547,27 @@ p {
 }
 
 .mk-cta:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--panel),
-    0 0 0 4px color-mix(in oklab, var(--accent) 28%, white);
+  border-color: color-mix(in oklab, var(--gold) 55%, var(--border));
 }
 
 .mk-cta--primary {
-  border-color: color-mix(in oklab, var(--accent) 80%, black);
-  background: color-mix(in oklab, var(--accent) 86%, black);
-  color: white;
+  border-color: color-mix(in oklab, var(--gold) 78%, black);
+  background: var(--gold);
+  color: var(--bg);
 }
 
 .mk-cta--primary:hover {
-  background: color-mix(in oklab, var(--accent) 72%, black);
+  background: color-mix(in oklab, var(--gold) 88%, black);
 }
 
 .mk-cta--secondary {
-  border-color: color-mix(in oklab, var(--border) 68%, white);
-  color: color-mix(in oklab, var(--text-primary) 85%, var(--accent));
-  background: color-mix(in oklab, var(--panel) 94%, var(--bg));
+  border-color: color-mix(in oklab, var(--border) 70%, var(--accent-soft));
+  color: var(--text);
+  background: transparent;
 }
 
 .mk-cta--secondary:hover {
+  background: var(--accent-soft);
   border-color: color-mix(in oklab, var(--accent) 42%, var(--border));
 }
 
@@ -2905,8 +2924,8 @@ p {
 }
 
 .mk-faq__question:focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--accent) 50%, white);
-  outline-offset: -2px;
+  outline-color: var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .mk-faq__item[open] .mk-faq__question::after {

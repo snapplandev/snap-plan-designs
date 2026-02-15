@@ -1,11 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { adminHome, appHome, login } from "@/lib/routes";
 import { getSupabaseEnv, hasSupabaseEnv } from "@/lib/supabase/env";
 
 function redirectToLogin(request: NextRequest): NextResponse {
   const loginUrl = request.nextUrl.clone();
-  loginUrl.pathname = "/login";
+  loginUrl.pathname = login();
   loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   return NextResponse.redirect(loginUrl);
 }
@@ -46,7 +47,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return redirectToLogin(request);
   }
 
-  if (request.nextUrl.pathname.startsWith("/admin")) {
+  if (request.nextUrl.pathname.startsWith(adminHome())) {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
@@ -55,7 +56,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
     if (profileError || profile?.role !== "admin") {
       const appUrl = request.nextUrl.clone();
-      appUrl.pathname = "/app";
+      appUrl.pathname = appHome();
       appUrl.search = "";
       return NextResponse.redirect(appUrl);
     }

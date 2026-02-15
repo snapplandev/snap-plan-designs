@@ -35,7 +35,7 @@ export default function PlanSpecimen() {
         <span aria-hidden="true" className="mk-specimen__pin" />
 
         <span className="mk-specimen__note mk-specimen__note--north">N</span>
-        <span className="mk-specimen__note mk-specimen__note--scale">Scale 1/4" = 1'-0"</span>
+        <span className="mk-specimen__note mk-specimen__note--scale">Scale 1/4&quot; = 1&apos;-0&quot;</span>
       </div>
       <figcaption className="mk-specimen__caption">Specimen layout preview</figcaption>
     </figure>

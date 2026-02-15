@@ -1,6 +1,22 @@
 import { checkoutUrl } from "@/lib/billing/url";
 import type { PackageId } from "@/lib/packages";
 
+export function home(): string {
+  return "/";
+}
+
+export function login(): string {
+  return "/login";
+}
+
+export function signup(): string {
+  return "/signup";
+}
+
+export function logout(): string {
+  return "/logout";
+}
+
 export function appHome(): string {
   return "/app";
 }

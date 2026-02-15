@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 
 import Button from "@/components/ui/Button";
-import { appHome } from "@/lib/routes";
+import { appHome, home, login } from "@/lib/routes";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 export default function SignupPage() {
@@ -85,7 +85,7 @@ export default function SignupPage() {
             enable authentication.
           </p>
           <p className="auth-footnote">
-            <Link href="/">Back to home</Link>
+            <Link href={home()}>Back to home</Link>
           </p>
         </section>
       </main>
@@ -163,7 +163,7 @@ export default function SignupPage() {
         </form>
 
         <p className="auth-footnote">
-          Already have an account? <Link href="/login">Sign in</Link>
+          Already have an account? <Link href={login()}>Sign in</Link>
         </p>
       </section>
     </main>

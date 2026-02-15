@@ -32,20 +32,20 @@ export default function CheckoutClient({ projectId, initialPackageId }: Checkout
 
   const handleProceedToPayment = () => {
     if (demoMode) {
-      setNotice("Payments activate when Stripe is connected.");
+      setNotice("Payments are not enabled yet.");
       return;
     }
 
-    setNotice("Payments activate when Stripe is connected.");
+    setNotice("Payments are not enabled yet.");
   };
 
   return (
     <section className="billing-checkout" aria-label="Billing checkout">
       <header className="billing-checkout__header">
         <p className="billing-checkout__eyebrow">Checkout</p>
-        <h1 className="billing-checkout__title">Choose your package</h1>
+        <h1 className="billing-checkout__title">Payments not enabled yet</h1>
         <p className="billing-checkout__subtitle">
-          Select a package now. Payment stays disabled until Stripe is connected.
+          Select a package now. Payment remains disabled until Stripe is connected.
         </p>
         {projectId ? (
           <p className="billing-checkout__project" aria-label={`Project ${projectId}`}>

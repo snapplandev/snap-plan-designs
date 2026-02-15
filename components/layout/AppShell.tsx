@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { appHome } from "@/lib/routes";
+import { appHome, login } from "@/lib/routes";
 import { modeLabel } from "@/lib/runtime/mode";
 
 type AppShellProps = Readonly<{
@@ -29,7 +29,7 @@ export default function AppShell({ children }: AppShellProps) {
             <Link className="app-shell__nav-link" href={appHome()}>
               Projects
             </Link>
-            <Link className="app-shell__nav-link" href="/login">
+            <Link className="app-shell__nav-link" href={login()}>
               Account
             </Link>
           </nav>

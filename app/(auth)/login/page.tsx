@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 
 import Button from "@/components/ui/Button";
-import { appHome } from "@/lib/routes";
+import { appHome, home, signup } from "@/lib/routes";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 function sanitizeNextPath(nextPath: string | null): string {
@@ -114,7 +114,7 @@ export default function LoginPage() {
             enable authentication.
           </p>
           <p className="auth-footnote">
-            <Link href="/">Back to home</Link>
+            <Link href={home()}>Back to home</Link>
           </p>
         </section>
       </main>
@@ -171,7 +171,7 @@ export default function LoginPage() {
         </form>
 
         <p className="auth-footnote">
-          New here? <Link href="/signup">Create an account</Link>
+          New here? <Link href={signup()}>Create an account</Link>
         </p>
       </section>
     </main>
