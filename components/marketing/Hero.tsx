@@ -27,13 +27,45 @@ export default function Hero() {
       <div className="mk-hero__actions reveal reveal--4">
         <Link
           aria-label="Start a project with Snap Plan Designs"
-          className="mk-cta mk-cta--primary"
+          className="mk-cta mk-cta--primary btn-anim"
           href={appHome()}
         >
-          Start a Project
+          <span className="btn-text-group">
+            <span className="btn-text-track">
+              <span className="btn-text">Start a Project</span>
+              <span aria-hidden="true" className="btn-text">
+                Start a Project
+              </span>
+            </span>
+          </span>
+          <span aria-hidden="true" className="btn-arrow-wrap">
+            <span className="btn-arrow-bg" />
+            <span className="btn-arrow-group">
+              <span className="btn-arrow">→</span>
+              <span className="btn-arrow">→</span>
+            </span>
+          </span>
         </Link>
-        <a aria-label="See how Snap Plan Designs works" className="mk-cta mk-cta--secondary" href="#how-it-works">
-          See How It Works
+        <a
+          aria-label="See how Snap Plan Designs works"
+          className="mk-cta mk-cta--secondary btn-anim"
+          href="#how-it-works"
+        >
+          <span className="btn-text-group">
+            <span className="btn-text-track">
+              <span className="btn-text">See How It Works</span>
+              <span aria-hidden="true" className="btn-text">
+                See How It Works
+              </span>
+            </span>
+          </span>
+          <span aria-hidden="true" className="btn-arrow-wrap">
+            <span className="btn-arrow-bg" />
+            <span className="btn-arrow-group">
+              <span className="btn-arrow">→</span>
+              <span className="btn-arrow">→</span>
+            </span>
+          </span>
         </a>
       </div>
     </section>

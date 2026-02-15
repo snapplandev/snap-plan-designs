@@ -1,26 +1,57 @@
 import Link from "next/link";
 
 import FAQ from "@/components/marketing/FAQ";
+import Footer from "@/components/marketing/Footer";
 import Hero from "@/components/marketing/Hero";
 import PlanSpecimen from "@/components/marketing/PlanSpecimen";
 import PricingTable from "@/components/marketing/PricingTable";
+import RevealOnScroll from "@/components/marketing/RevealOnScroll";
 import Section from "@/components/marketing/Section";
 import { appHome } from "@/lib/routes";
 
 export default function MarketingPage() {
   return (
     <main className="mk-page">
+      <RevealOnScroll />
       <header className="mk-nav" aria-label="Primary">
         <div className="mk-nav__inner">
           <Link aria-label="Snap Plan Designs home" className="mk-nav__wordmark mk-link-underline" href="/">
             Snap Plan Designs
           </Link>
           <nav className="mk-nav__actions" aria-label="Account actions">
-            <Link aria-label="Log in" className="mk-cta mk-cta--secondary" href="/login">
-              Log in
+            <Link aria-label="Log in" className="mk-cta mk-cta--secondary btn-anim" href="/login">
+              <span className="btn-text-group">
+                <span className="btn-text-track">
+                  <span className="btn-text">Log in</span>
+                  <span aria-hidden="true" className="btn-text">
+                    Log in
+                  </span>
+                </span>
+              </span>
+              <span aria-hidden="true" className="btn-arrow-wrap">
+                <span className="btn-arrow-bg" />
+                <span className="btn-arrow-group">
+                  <span className="btn-arrow">→</span>
+                  <span className="btn-arrow">→</span>
+                </span>
+              </span>
             </Link>
-            <Link aria-label="Start a project" className="mk-cta mk-cta--primary" href={appHome()}>
-              Start
+            <Link aria-label="Start a project" className="mk-cta mk-cta--primary btn-anim" href={appHome()}>
+              <span className="btn-text-group">
+                <span className="btn-text-track">
+                  <span className="btn-text">Start</span>
+                  <span aria-hidden="true" className="btn-text">
+                    Start
+                  </span>
+                </span>
+              </span>
+              <span aria-hidden="true" className="btn-arrow-wrap">
+                <span className="btn-arrow-bg" />
+                <span className="btn-arrow-group">
+                  <span className="btn-arrow">→</span>
+                  <span className="btn-arrow">→</span>
+                </span>
+              </span>
             </Link>
           </nav>
         </div>
@@ -31,15 +62,15 @@ export default function MarketingPage() {
 
         <Section className="reveal reveal--2" title="The dead zone between Pinterest and permitting.">
           <div className="mk-problem-grid">
-            <article className="mk-problem reveal">
+            <article className="mk-problem reveal card-hover">
               <span className="mk-problem__marker" aria-hidden="true" />
               <h3>Estimates are guesses</h3>
             </article>
-            <article className="mk-problem reveal">
+            <article className="mk-problem reveal card-hover">
               <span className="mk-problem__marker" aria-hidden="true" />
               <h3>Sketches don&apos;t translate</h3>
             </article>
-            <article className="mk-problem reveal">
+            <article className="mk-problem reveal card-hover">
               <span className="mk-problem__marker" aria-hidden="true" />
               <h3>Projects stall before they start</h3>
             </article>
@@ -89,14 +120,29 @@ export default function MarketingPage() {
           <h2 className="mk-final-cta__title">Clarity first. Costly decisions second.</h2>
           <Link
             aria-label="Start a project from final call to action"
-            className="mk-cta mk-cta--primary"
+            className="mk-cta mk-cta--primary btn-anim"
             href={appHome()}
           >
-            Start a Project
+            <span className="btn-text-group">
+              <span className="btn-text-track">
+                <span className="btn-text">Start a Project</span>
+                <span aria-hidden="true" className="btn-text">
+                  Start a Project
+                </span>
+              </span>
+            </span>
+            <span aria-hidden="true" className="btn-arrow-wrap">
+              <span className="btn-arrow-bg" />
+              <span className="btn-arrow-group">
+                <span className="btn-arrow">→</span>
+                <span className="btn-arrow">→</span>
+              </span>
+            </span>
           </Link>
           <p className="mk-final-cta__subtext">Remote. Fast. Built for real execution.</p>
         </section>
       </div>
+      <Footer />
     </main>
   );
 }

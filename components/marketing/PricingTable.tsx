@@ -15,7 +15,7 @@ export default function PricingTable() {
   return (
     <div className="mk-pricing">
       {packages.map((pkg, index) => (
-        <article className="mk-pricing__panel reveal" key={pkg.id}>
+        <article className="mk-pricing__panel reveal card-hover" key={pkg.id}>
           <span className="mk-pricing__accent" aria-hidden="true" />
           <p className="mk-pricing__eyebrow">Package {index + 1}</p>
           <h3 className="mk-pricing__name">{pkg.name}</h3>
@@ -39,10 +39,16 @@ export default function PricingTable() {
 
           <Link
             aria-label={`Start with ${pkg.name}`}
-            className="mk-link-underline"
+            className="mk-link-underline mk-link-arrow hover-shift"
             href={billingCheckout(undefined, pkg.id)}
           >
-            Start with {pkg.name}
+            <span className="mk-link-arrow__label">Start with {pkg.name}</span>
+            <span aria-hidden="true" className="mk-link-arrow__arrow-wrap">
+              <span className="mk-link-arrow__arrow-track">
+                <span className="mk-link-arrow__arrow">→</span>
+                <span className="mk-link-arrow__arrow">→</span>
+              </span>
+            </span>
           </Link>
         </article>
       ))}

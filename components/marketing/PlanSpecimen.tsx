@@ -7,8 +7,8 @@ export default function PlanSpecimen() {
   const horizontalGuides = [12, 24, 36, 48, 60, 72, 84];
 
   return (
-    <figure className="mk-specimen" aria-label="Specimen architectural floor plan preview">
-      <div className="mk-specimen__canvas">
+    <figure className="mk-specimen card-hover reveal" aria-label="Specimen architectural floor plan preview">
+      <div className="mk-specimen__canvas card-hover-media">
         {verticalGuides.map((position) => (
           <span
             aria-hidden="true"

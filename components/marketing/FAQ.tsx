@@ -39,7 +39,7 @@ export default function FAQ() {
   return (
     <div className="mk-faq">
       {FAQ_ITEMS.map((item) => (
-        <details className="mk-faq__item" key={item.question}>
+        <details className="mk-faq__item reveal card-hover" key={item.question}>
           <summary className="mk-faq__question">{item.question}</summary>
           <p className="mk-faq__answer">{item.answer}</p>
         </details>
