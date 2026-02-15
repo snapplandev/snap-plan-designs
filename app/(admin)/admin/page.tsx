@@ -1,32 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import ProjectStatusPill from "@/components/projects/ProjectStatusPill";
-import { getProjects } from "@/lib/data/client";
+import { fetchAllProjectsForAdmin } from "@/lib/data/supabase";
 import type { Project } from "@/lib/data/types";
 import { adminProject } from "@/lib/routes";
-
-const STATUS_PRIORITY: Record<Project["status"], number> = {
-  submitted: 0,
-  in_review: 1,
-  in_progress: 2,
-  delivered: 3,
-  draft: 4,
-  closed: 5,
-};
-
-function compareProjectsByQueuePriority(left: Project, right: Project): number {
-  const leftPriority = STATUS_PRIORITY[left.status];
-  const rightPriority = STATUS_PRIORITY[right.status];
-
-  if (leftPriority !== rightPriority) {
-    return leftPriority - rightPriority;
-  }
-
-  return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
-}
 
 function formatAdminDate(updatedAt: string): string {
   const parsedDate = new Date(updatedAt);
@@ -54,7 +34,7 @@ export default function AdminPage() {
 
     const loadQueue = async () => {
       try {
-        const records = await getProjects();
+        const records = await fetchAllProjectsForAdmin();
         if (isMounted) {
           setProjects(records);
           setLoadError(null);
@@ -74,11 +54,6 @@ export default function AdminPage() {
     };
   }, []);
 
-  const sortedProjects = useMemo(
-    () => [...projects].sort(compareProjectsByQueuePriority),
-    [projects],
-  );
-
   return (
     <section className="admin-queue" aria-label="Orders and projects queue">
       <header className="admin-queue__header">
@@ -96,11 +71,11 @@ export default function AdminPage() {
       ) : null}
 
       <section className="admin-ledger" aria-label="Admin queue ledger">
-        {sortedProjects.length === 0 ? (
+        {projects.length === 0 ? (
           <p className="admin-ledger__empty">No projects in queue.</p>
         ) : (
           <ol className="admin-ledger__list">
-            {sortedProjects.map((project) => (
+            {projects.map((project) => (
               <li className="admin-ledger__row" key={project.id}>
                 <div className="admin-ledger__identity">
                   <h2 className="admin-ledger__title">{project.title}</h2>

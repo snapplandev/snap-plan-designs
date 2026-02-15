@@ -6,21 +6,13 @@ import { useParams } from "next/navigation";
 
 import ProjectStatusPill from "@/components/projects/ProjectStatusPill";
 import {
-  addDeliverable,
-  addFiles,
-  addMessage,
-  getProjectById,
-  setProjectStatus,
-  updateRevisionStatus,
-} from "@/lib/data/client";
-import type {
-  Project,
-  ProjectDetails,
-  ProjectFile,
-  ProjectFileInput,
-  Revision,
-  RevisionStatus,
-} from "@/lib/data/types";
+  adminAddDeliverableMeta,
+  adminPostMessage,
+  adminUpdateProjectStatus,
+  adminUpdateRevisionStatus,
+  fetchProjectBundle,
+} from "@/lib/data/supabase";
+import type { Project, ProjectDetails, ProjectFile, Revision, RevisionStatus } from "@/lib/data/types";
 import { adminHome } from "@/lib/routes";
 
 const PROJECT_STATUS_OPTIONS: Project["status"][] = [
@@ -81,8 +73,20 @@ export default function AdminProjectPage() {
       return;
     }
     try {
-      const nextProject = await getProjectById(projectId);
-      setProjectDetails(nextProject);
+      const nextBundle = await fetchProjectBundle(projectId);
+      if (!nextBundle.project) {
+        setProjectDetails(null);
+        setLoadError(null);
+        return;
+      }
+      setProjectDetails({
+        project: nextBundle.project,
+        summary: nextBundle.summary,
+        packageDetails: nextBundle.packageDetails,
+        messages: nextBundle.messages,
+        revisions: nextBundle.revisions,
+        files: nextBundle.files,
+      });
       setLoadError(null);
     } catch (error) {
       setProjectDetails(undefined);
@@ -108,7 +112,7 @@ export default function AdminProjectPage() {
 
     setStatusPending(true);
     try {
-      await setProjectStatus(projectDetails.project.id, nextStatus);
+      await adminUpdateProjectStatus(projectDetails.project.id, nextStatus);
       await loadProject();
       setNotice(`Project status updated to ${nextStatus.replace("_", " ")}.`);
     } finally {
@@ -123,13 +127,10 @@ export default function AdminProjectPage() {
 
     setStatusPending(true);
     try {
-      await addDeliverable(projectDetails.project.id, {
-        name: "SnapPlan_Layout_v1.pdf",
-        size: 412_000,
-        mimeType: "application/pdf",
-      });
+      await adminAddDeliverableMeta(projectDetails.project.id, "SnapPlan_Layout_v1.pdf");
+      await adminUpdateProjectStatus(projectDetails.project.id, "delivered");
       await loadProject();
-      setNotice("Project marked delivered and demo deliverable attached.");
+      setNotice("Project marked delivered and deliverable metadata added.");
     } finally {
       setStatusPending(false);
     }
@@ -147,16 +148,15 @@ export default function AdminProjectPage() {
 
     setUploadPending(true);
     try {
-      const filesToAdd: ProjectFileInput[] = Array.from(fileList).map((file) => ({
-        name: file.name,
-        size: file.size,
-        mimeType: file.type || "Unknown type",
-        group: "deliverable",
-      }));
+      const filenames = Array.from(fileList)
+        .map((file) => file.name.trim())
+        .filter((filename) => filename.length > 0);
 
-      await addFiles(projectDetails.project.id, filesToAdd);
+      await Promise.all(
+        filenames.map((filename) => adminAddDeliverableMeta(projectDetails.project.id, filename)),
+      );
       await loadProject();
-      setNotice(`${filesToAdd.length} deliverable file${filesToAdd.length === 1 ? "" : "s"} added.`);
+      setNotice(`${filenames.length} deliverable file${filenames.length === 1 ? "" : "s"} added.`);
     } finally {
       event.currentTarget.value = "";
       setUploadPending(false);
@@ -175,7 +175,7 @@ export default function AdminProjectPage() {
 
     setMessagePending(true);
     try {
-      await addMessage(projectDetails.project.id, normalizedBody, "Snap Plan");
+      await adminPostMessage(projectDetails.project.id, normalizedBody);
       await loadProject();
       setPostBody("");
       setNotice("Project update posted.");
@@ -189,7 +189,7 @@ export default function AdminProjectPage() {
       return;
     }
 
-    await updateRevisionStatus(projectDetails.project.id, revision.id, nextStatus);
+    await adminUpdateRevisionStatus(revision.id, nextStatus);
     await loadProject();
     setNotice(`Revision \"${revision.title}\" marked ${REVISION_STATUS_LABELS[nextStatus]}.`);
   };
@@ -315,7 +315,7 @@ export default function AdminProjectPage() {
           <h2 className="admin-ops-panel__title">Upload Deliverable</h2>
           <label className="admin-file-uploader" htmlFor="admin-deliverable-upload">
             <span className="admin-file-uploader__title">Add files</span>
-            <span className="admin-file-uploader__hint">PDF, JPG, PNG accepted in demo mode.</span>
+            <span className="admin-file-uploader__hint">Metadata rows are saved now; storage upload is pending.</span>
           </label>
           <input
             accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"

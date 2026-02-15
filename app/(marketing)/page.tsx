@@ -5,25 +5,21 @@ import Hero from "@/components/marketing/Hero";
 import PlanSpecimen from "@/components/marketing/PlanSpecimen";
 import PricingTable from "@/components/marketing/PricingTable";
 import Section from "@/components/marketing/Section";
-import { appHome, home, login } from "@/lib/routes";
+import { appHome } from "@/lib/routes";
 
 export default function MarketingPage() {
   return (
     <main className="mk-page">
       <header className="mk-nav" aria-label="Primary">
         <div className="mk-nav__inner">
-          <Link
-            aria-label="Snap Plan Designs home"
-            className="mk-nav__wordmark mk-link-underline"
-            href={home()}
-          >
+          <Link aria-label="Snap Plan Designs home" className="mk-nav__wordmark mk-link-underline" href="/">
             Snap Plan Designs
           </Link>
           <nav className="mk-nav__actions" aria-label="Account actions">
-            <Link aria-label="Log in" className="mk-cta mk-cta--secondary" href={login()}>
+            <Link aria-label="Log in" className="mk-link-underline" href="/login">
               Log in
             </Link>
-            <Link aria-label="Start a project" className="mk-cta mk-cta--primary" href={appHome()}>
+            <Link aria-label="Start a project" className="mk-link-underline" href={appHome()}>
               Start
             </Link>
           </nav>

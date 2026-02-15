@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useRef, type ChangeEvent, type DragEvent } from "react";
+import { useEffect, useReducer, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import Field from "@/components/intake/Field";
@@ -243,6 +243,7 @@ export default function NewProjectPage() {
   const router = useRouter();
   const redirectTimerRef = useRef<number | null>(null);
   const hydratedProjectIdRef = useRef<string | null>(null);
+  const [isHydratingDraft, setIsHydratingDraft] = useState(false);
   const [state, dispatch] = useReducer(intakeReducer, INITIAL_STATE);
 
   const isCurrentStepComplete = isStepComplete(state.currentStep, state.fields);
@@ -264,31 +265,57 @@ export default function NewProjectPage() {
 
     let isMounted = true;
     hydratedProjectIdRef.current = existingProjectId;
+    setIsHydratingDraft(true);
 
     const hydrateFromExistingProject = async () => {
-      const existingProject = await getProjectById(existingProjectId);
-      if (!isMounted || !existingProject) {
-        return;
-      }
+      try {
+        const existingProject = await getProjectById(existingProjectId);
+        if (!isMounted) {
+          return;
+        }
 
-      const parsedLocation = parseLocation(existingProject.project.location);
-      dispatch({
-        type: "HYDRATE_FROM_PROJECT",
-        projectId: existingProject.project.id,
-        fields: {
-          title: existingProject.project.title,
-          propertyType: mapPropertyType(existingProject.project.propertyType),
-          city: parsedLocation.city,
-          state: parsedLocation.state,
-          goals: existingProject.summary.goals,
-          constraints: existingProject.summary.constraints,
-          mustHaves: existingProject.summary.mustHaves,
-          dimensions: existingProject.summary.dimensions,
-          ceilingHeight: existingProject.summary.ceilingHeight,
-          measurementNotes: existingProject.summary.measurementNotes,
-        },
-        notice: "Loaded draft intake. Continue editing and submit when ready.",
-      });
+        if (!existingProject) {
+          dispatch({
+            type: "SET_NOTICE",
+            notice: "Draft project not found. Start a new intake.",
+          });
+          return;
+        }
+
+        const parsedLocation = parseLocation(existingProject.project.location);
+        dispatch({
+          type: "HYDRATE_FROM_PROJECT",
+          projectId: existingProject.project.id,
+          fields: {
+            title: existingProject.project.title,
+            propertyType: mapPropertyType(existingProject.project.propertyType),
+            city: parsedLocation.city,
+            state: parsedLocation.state,
+            goals: existingProject.summary.goals,
+            constraints: existingProject.summary.constraints,
+            mustHaves: existingProject.summary.mustHaves,
+            dimensions: existingProject.summary.dimensions,
+            ceilingHeight: existingProject.summary.ceilingHeight,
+            measurementNotes: existingProject.summary.measurementNotes,
+          },
+          notice: "Loaded draft intake. Continue editing and submit when ready.",
+        });
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+        dispatch({
+          type: "SET_NOTICE",
+          notice:
+            error instanceof Error
+              ? `Unable to load existing draft: ${error.message}`
+              : "Unable to load existing draft.",
+        });
+      } finally {
+        if (isMounted) {
+          setIsHydratingDraft(false);
+        }
+      }
     };
 
     void hydrateFromExistingProject();
@@ -436,6 +463,12 @@ export default function NewProjectPage() {
       onNext={handleNext}
       steps={WIZARD_STEPS}
     >
+      {isHydratingDraft ? (
+        <p className="intake-submit-notice" role="status">
+          Loading draft intake...
+        </p>
+      ) : null}
+
       {state.currentStep === 0 ? (
         <div className="intake-step">
           <StepHeader guidance={WIZARD_STEPS[0].guidance} title={WIZARD_STEPS[0].title} />

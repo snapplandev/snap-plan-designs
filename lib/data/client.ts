@@ -1,11 +1,10 @@
 import { mockProjectDetails, mockProjects } from "@/lib/data/mock";
 import {
-  createProjectForUser,
-  fetchProjectBundleForUser,
+  createProjectDraft as createProjectDraftLive,
+  fetchProjectBundle,
   fetchProjectsForUser,
-  getAuthenticatedUserId,
-  updateProjectForUser,
-  updateProjectStatusForUser,
+  submitIntake as submitIntakeLive,
+  updateProjectStatus as updateProjectStatusLive,
 } from "@/lib/data/supabase";
 import type {
   CreateProjectDraftInput,
@@ -47,6 +46,7 @@ function clearDataError(): void {
 
 function setDataError(error: unknown): void {
   latestDataError = error instanceof Error ? error.message : "Unable to load data.";
+  console.error("[data-client]", error);
 }
 
 /**
@@ -347,8 +347,7 @@ export async function getProjects(): Promise<Project[]> {
   }
 
   try {
-    const userId = await getAuthenticatedUserId();
-    const projects = await fetchProjectsForUser(userId);
+    const projects = await fetchProjectsForUser();
     clearDataError();
     return projects;
   } catch (error) {
@@ -377,8 +376,7 @@ export async function getProjectById(id: string): Promise<ProjectDetails | null>
   }
 
   try {
-    const userId = await getAuthenticatedUserId();
-    const bundle = await fetchProjectBundleForUser(userId, id);
+    const bundle = await fetchProjectBundle(id);
     if (!bundle.project) {
       clearDataError();
       return null;
@@ -387,15 +385,8 @@ export async function getProjectById(id: string): Promise<ProjectDetails | null>
     clearDataError();
     return {
       project: bundle.project,
-      summary: {
-        goals: "",
-        constraints: "",
-        mustHaves: "",
-        dimensions: "",
-        ceilingHeight: "",
-        measurementNotes: "",
-      },
-      packageDetails: { ...DEFAULT_PACKAGE_DETAILS },
+      summary: bundle.summary,
+      packageDetails: bundle.packageDetails,
       messages: bundle.messages,
       revisions: bundle.revisions,
       files: bundle.files,
@@ -441,8 +432,7 @@ export async function markProjectRead(projectId: string): Promise<Project | null
 export async function createProjectDraft(input: CreateProjectDraftInput): Promise<Project> {
   if (!isDemoMode()) {
     try {
-      const userId = await getAuthenticatedUserId();
-      const createdProject = await createProjectForUser(userId, input);
+      const createdProject = await createProjectDraftLive(input);
       clearDataError();
       return createdProject;
     } catch (error) {
@@ -539,39 +529,20 @@ export async function submitIntake(
 ): Promise<ProjectDetails | null> {
   if (!isDemoMode()) {
     try {
-      const userId = await getAuthenticatedUserId();
-      const nextSummary = buildSummaryFromIntakeInput(intakePayload);
-      const nextLocation =
-        intakePayload.city !== undefined || intakePayload.state !== undefined
-          ? toLocation(intakePayload.city ?? "", intakePayload.state ?? "")
-          : undefined;
-      const normalizedTitle = intakePayload.title?.trim();
-      const normalizedPropertyType = intakePayload.propertyType?.trim();
-
-      const updatedProject = await updateProjectForUser(userId, projectId, {
-        title: normalizedTitle && normalizedTitle.length > 0 ? normalizedTitle : undefined,
-        location: nextLocation,
-        property_type:
-          normalizedPropertyType && normalizedPropertyType.length > 0
-            ? toTitleCase(normalizedPropertyType)
-            : undefined,
-        status: "submitted",
-        intake_summary: JSON.stringify(nextSummary),
-      });
-
-      if (!updatedProject) {
+      const nextBundle = await submitIntakeLive(projectId, intakePayload);
+      if (!nextBundle?.project) {
         clearDataError();
         return null;
       }
 
       clearDataError();
       return {
-        project: updatedProject,
-        summary: nextSummary,
-        packageDetails: { ...DEFAULT_PACKAGE_DETAILS },
-        messages: [],
-        revisions: [],
-        files: [],
+        project: nextBundle.project,
+        summary: nextBundle.summary,
+        packageDetails: nextBundle.packageDetails,
+        messages: nextBundle.messages,
+        revisions: nextBundle.revisions,
+        files: nextBundle.files,
       };
     } catch (error) {
       setDataError(error);
@@ -753,8 +724,7 @@ export async function setProjectStatus(
 ): Promise<Project | null> {
   if (!isDemoMode()) {
     try {
-      const userId = await getAuthenticatedUserId();
-      const nextProject = await updateProjectStatusForUser(userId, projectId, status);
+      const nextProject = await updateProjectStatusLive(projectId, status);
       clearDataError();
       return nextProject;
     } catch (error) {

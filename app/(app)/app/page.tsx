@@ -20,6 +20,7 @@ function canOpenProjectWorkspace(status: Project["status"]): boolean {
  */
 export default function AppPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const demoMode = isDemoMode();
 
@@ -27,6 +28,9 @@ export default function AppPage() {
     let isMounted = true;
 
     const loadProjects = async () => {
+      if (isMounted) {
+        setIsLoading(true);
+      }
       try {
         const records = await getProjects();
         if (isMounted) {
@@ -38,6 +42,10 @@ export default function AppPage() {
           setProjects([]);
           setLoadError(error instanceof Error ? error.message : "Unable to load projects.");
         }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -48,7 +56,7 @@ export default function AppPage() {
     };
   }, []);
 
-  const sampleProjectId = projects[0]?.id ?? "1";
+  const sampleProjectId = projects[0]?.id;
 
   return (
     <section className="projects-dashboard" aria-label="Client projects dashboard">
@@ -80,18 +88,24 @@ export default function AppPage() {
           <Link aria-label="Create a new project" className="button button--primary" href={newProject()}>
             New Project
           </Link>
-          <Link
-            aria-label="Open sample project workspace"
-            className="projects-dashboard__sample-link"
-            href={projectRoute(sampleProjectId)}
-          >
-            Open sample project
-          </Link>
+          {sampleProjectId ? (
+            <Link
+              aria-label="Open sample project workspace"
+              className="projects-dashboard__sample-link"
+              href={projectRoute(sampleProjectId)}
+            >
+              Open sample project
+            </Link>
+          ) : null}
         </div>
       </header>
 
       <div className="projects-dashboard__list" role="list">
-        {projects.length === 0 ? (
+        {isLoading ? (
+          <p className="projects-dashboard__subhead" role="status">
+            Loading projects...
+          </p>
+        ) : projects.length === 0 ? (
           <EmptyState />
         ) : (
           projects.map((project) => (
