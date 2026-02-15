@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 
 import Button from "@/components/ui/Button";
+import { appHome } from "@/lib/routes";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 export default function SignupPage() {
@@ -70,7 +71,7 @@ export default function SignupPage() {
       setSuccessMessage("Account created. Check your email for the confirmation link.");
     }
 
-    router.push("/app");
+    router.push(appHome());
     router.refresh();
   }
 

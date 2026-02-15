@@ -12,6 +12,13 @@ export type MessageType = "user" | "system";
 export type RevisionStatus = "open" | "in_progress" | "resolved" | "declined";
 
 export type ProjectFileGroup = "upload" | "deliverable";
+export type ProjectFileType =
+  | "sketch"
+  | "photo"
+  | "inspiration"
+  | "existing_plan"
+  | "deliverable"
+  | "other";
 
 export type Project = {
   id: string;
@@ -48,13 +55,23 @@ export type Revision = {
   createdAt: string;
 };
 
-export type ProjectFile = {
+export type FileMeta = {
   id: string;
+  projectId: string;
+  type: ProjectFileType;
+  filename: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  createdAt: string;
+  version?: number;
+  isCurrent?: boolean;
+};
+
+export type ProjectFile = FileMeta & {
+  // Compatibility fields retained while call sites migrate to FileMeta semantics.
   name: string;
   size: number;
-  mimeType: string;
   group: ProjectFileGroup;
-  createdAt: string;
 };
 
 export type ProjectSummary = {
@@ -84,9 +101,12 @@ export type ProjectDetails = {
 export type ProjectDetailsById = Record<string, ProjectDetails>;
 
 export type ProjectFileInput = {
-  name: string;
-  size: number;
+  filename?: string;
+  name?: string;
+  sizeBytes?: number;
+  size?: number;
   mimeType?: string;
+  type?: ProjectFileType;
   group?: ProjectFileGroup;
 };
 

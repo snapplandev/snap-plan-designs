@@ -7,6 +7,7 @@ import EmptyState from "@/components/projects/EmptyState";
 import ProjectCard from "@/components/projects/ProjectCard";
 import { getDataClientError, getProjects } from "@/lib/data/client";
 import type { Project } from "@/lib/data/types";
+import { newProject, project as projectRoute } from "@/lib/routes";
 import { isDemoMode } from "@/lib/runtime/mode";
 
 function canOpenProjectWorkspace(status: Project["status"]): boolean {
@@ -76,13 +77,13 @@ export default function AppPage() {
         </div>
 
         <div className="projects-dashboard__cta">
-          <Link aria-label="Create a new project" className="button button--primary" href="/app/projects/new">
+          <Link aria-label="Create a new project" className="button button--primary" href={newProject()}>
             New Project
           </Link>
           <Link
             aria-label="Open sample project workspace"
             className="projects-dashboard__sample-link"
-            href={`/app/projects/${sampleProjectId}`}
+            href={projectRoute(sampleProjectId)}
           >
             Open sample project
           </Link>
@@ -96,7 +97,9 @@ export default function AppPage() {
           projects.map((project) => (
             <div key={project.id} role="listitem">
               <ProjectCard
-                projectHref={canOpenProjectWorkspace(project.status) ? `/app/projects/${project.id}` : undefined}
+                projectHref={
+                  canOpenProjectWorkspace(project.status) ? projectRoute(project.id) : undefined
+                }
                 title={project.title}
                 location={project.location}
                 status={project.status}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { PACKAGE_DEFS, type PackageDefinition, type PackageId } from "@/lib/packages";
+import { appHome, project } from "@/lib/routes";
 import { isDemoMode } from "@/lib/runtime/mode";
 
 const PACKAGE_ORDER: PackageId[] = ["starter", "standard", "premium"];
@@ -22,7 +23,7 @@ export default function CheckoutClient({ projectId, initialPackageId }: Checkout
   const [notice, setNotice] = useState<string | null>(null);
   const [selectedPackageId, setSelectedPackageId] = useState<PackageId>(initialPackageId);
 
-  const backToProjectHref = projectId ? `/app/projects/${encodeURIComponent(projectId)}` : "/app";
+  const backToProjectHref = projectId ? project(encodeURIComponent(projectId)) : appHome();
 
   const packages: PackageDefinition[] = useMemo(
     () => PACKAGE_ORDER.map((packageId) => PACKAGE_DEFS[packageId]),

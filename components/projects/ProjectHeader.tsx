@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import Button from "@/components/ui/Button";
 import ProjectStatusPill, { type ProjectStatus } from "@/components/projects/ProjectStatusPill";
-import { checkoutUrl } from "@/lib/billing/url";
+import { billingCheckout } from "@/lib/routes";
 
 type ProjectHeaderProps = Readonly<{
   projectId: string;
@@ -34,7 +34,7 @@ export default function ProjectHeader({
   status,
   onPrimaryAction,
 }: ProjectHeaderProps) {
-  const primaryActionHref = status === "submitted" ? checkoutUrl(projectId, "standard") : null;
+  const primaryActionHref = status === "submitted" ? billingCheckout(projectId, "standard") : null;
 
   return (
     <header className="project-workspace-header" aria-label="Project folio header">

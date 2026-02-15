@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 
 import FilePanel from "@/components/projects/FilePanel";
 import MessagesPanel from "@/components/projects/MessagesPanel";
@@ -19,6 +19,7 @@ import {
   markProjectRead,
 } from "@/lib/data/client";
 import type { ProjectDetails, ProjectFileInput, ProjectStatus, RevisionStatus } from "@/lib/data/types";
+import { appHome, newProject } from "@/lib/routes";
 import { isDemoMode } from "@/lib/runtime/mode";
 
 const PRIMARY_ACTION_FEEDBACK: Record<ProjectStatus, string> = {
@@ -32,7 +33,7 @@ const PRIMARY_ACTION_FEEDBACK: Record<ProjectStatus, string> = {
 
 /**
  * Project workspace page reading and mutating state via the data adapter.
- * Edge case: unknown ids still render a graceful fallback instead of throwing.
+ * Edge case: unknown ids escalate to route-level not-found handling for consistent navigation UX.
  */
 export default function ProjectWorkspacePage() {
   const params = useParams<{ id: string }>();
@@ -105,7 +106,7 @@ export default function ProjectWorkspacePage() {
         <section className="project-workspace project-workspace--missing" aria-label="Project load failed">
           <h1 className="project-workspace__missing-title">Unable to Load Project</h1>
           <p className="project-workspace__missing-body">{loadError}</p>
-          <Link aria-label="Back to projects dashboard" className="button button--primary" href="/app">
+          <Link aria-label="Back to projects dashboard" className="button button--primary" href={appHome()}>
             Back to Dashboard
           </Link>
         </section>
@@ -122,17 +123,7 @@ export default function ProjectWorkspacePage() {
   }
 
   if (!projectDetails) {
-    return (
-      <section className="project-workspace project-workspace--missing" aria-label="Project not found">
-        <h1 className="project-workspace__missing-title">Project Not Found</h1>
-        <p className="project-workspace__missing-body">
-          {loadError ?? "This project id does not exist in the local mock dataset."}
-        </p>
-        <Link aria-label="Back to projects dashboard" className="button button--primary" href="/app">
-          Back to Dashboard
-        </Link>
-      </section>
-    );
+    notFound();
   }
 
   const { project } = projectDetails;
@@ -192,7 +183,7 @@ export default function ProjectWorkspacePage() {
                     <Link
                       aria-label={`Continue intake for ${project.title}`}
                       className="button button--ghost"
-                      href={`/app/projects/new?projectId=${project.id}`}
+                      href={`${newProject()}?projectId=${project.id}`}
                     >
                       Continue Intake
                     </Link>

@@ -21,6 +21,7 @@ import type {
   Revision,
   RevisionStatus,
 } from "@/lib/data/types";
+import { adminHome } from "@/lib/routes";
 
 const PROJECT_STATUS_OPTIONS: Project["status"][] = [
   "draft",
@@ -199,7 +200,7 @@ export default function AdminProjectPage() {
         <section className="admin-ops" aria-label="Unable to load project workspace">
           <h1 className="admin-ops__title">Unable to Load Project</h1>
           <p className="admin-ops__subtitle">{loadError}</p>
-          <Link className="button button--ghost" href="/admin">
+          <Link className="button button--ghost" href={adminHome()}>
             Back to Queue
           </Link>
         </section>
@@ -218,7 +219,7 @@ export default function AdminProjectPage() {
       <section className="admin-ops" aria-label="Project not found in admin workspace">
         <h1 className="admin-ops__title">Project Not Found</h1>
         <p className="admin-ops__subtitle">This project id does not exist in the adapter dataset.</p>
-        <Link className="button button--ghost" href="/admin">
+        <Link className="button button--ghost" href={adminHome()}>
           Back to Queue
         </Link>
       </section>

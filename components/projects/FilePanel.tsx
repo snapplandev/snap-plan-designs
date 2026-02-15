@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 
-import type { ProjectFile, ProjectFileGroup, ProjectFileInput, ProjectStatus } from "@/lib/data/types";
 import Button from "@/components/ui/Button";
+import type { ProjectFile, ProjectFileInput, ProjectStatus } from "@/lib/data/types";
+import { downloadTextAsFile } from "@/lib/files/demoDownload";
 
 type FilePanelProps = Readonly<{
   projectId: string;
@@ -33,6 +34,63 @@ function formatFileSize(sizeInBytes: number): string {
   return `${(sizeInBytes / mebibyte).toFixed(1)} MB`;
 }
 
+function formatFileDate(value: string): string {
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Recently";
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(parsedDate);
+}
+
+function formatInputType(type: ProjectFile["type"]): string {
+  const labels: Record<ProjectFile["type"], string> = {
+    sketch: "Sketch",
+    photo: "Photo",
+    inspiration: "Inspiration",
+    existing_plan: "Existing Plan",
+    deliverable: "Deliverable",
+    other: "Other",
+  };
+  return labels[type];
+}
+
+function isDeliverable(file: ProjectFile): boolean {
+  return file.type === "deliverable" || file.group === "deliverable";
+}
+
+function getFileName(file: ProjectFile): string {
+  return file.filename || file.name;
+}
+
+function getFileSizeBytes(file: ProjectFile): number {
+  if (typeof file.sizeBytes === "number") {
+    return file.sizeBytes;
+  }
+  return file.size;
+}
+
+function resolveProjectTitle(projectId: string): string {
+  if (typeof document === "undefined") {
+    return `Project ${projectId}`;
+  }
+  const workspaceTitle = document
+    .querySelector(".project-workspace-header__title")
+    ?.textContent?.trim();
+  return workspaceTitle && workspaceTitle.length > 0 ? workspaceTitle : `Project ${projectId}`;
+}
+
+function toDownloadFilename(filename: string): string {
+  const trimmed = filename.trim();
+  if (trimmed.length === 0) {
+    return "deliverable.txt";
+  }
+  return trimmed.toLowerCase().endsWith(".txt") ? trimmed : `${trimmed}.txt`;
+}
+
 function createUniqueId(prefix: string): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return `${prefix}-${crypto.randomUUID()}`;
@@ -46,9 +104,8 @@ function createUniqueId(prefix: string): string {
  */
 export default function FilePanel({ projectId, projectStatus, files, onAddFiles }: FilePanelProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const allowDeliverables = projectStatus === "delivered";
+  const isDeliveredProject = projectStatus === "delivered";
   const [isDropActive, setIsDropActive] = useState(false);
-  const [targetGroup, setTargetGroup] = useState<ProjectFileGroup>("upload");
   const [workspaceFiles, setWorkspaceFiles] = useState<ProjectFile[]>(files);
   const [requestNote, setRequestNote] = useState("");
   const [requestNotes, setRequestNotes] = useState<DeliverableNote[]>([]);
@@ -57,32 +114,52 @@ export default function FilePanel({ projectId, projectStatus, files, onAddFiles 
     setWorkspaceFiles(files);
   }, [files]);
 
-  const uploadFiles = workspaceFiles.filter((file) => file.group === "upload");
-  const deliverableFiles = workspaceFiles.filter((file) => file.group === "deliverable");
+  const inputFiles = workspaceFiles.filter((file) => !isDeliverable(file));
+  const deliverableFiles = workspaceFiles
+    .filter((file) => isDeliverable(file))
+    .sort((leftFile, rightFile) => {
+      const leftTimestamp = new Date(leftFile.createdAt).getTime();
+      const rightTimestamp = new Date(rightFile.createdAt).getTime();
+      return rightTimestamp - leftTimestamp;
+    });
 
   const addIncomingFiles = (fileList: FileList | null) => {
     if (!fileList) {
       return;
     }
-    const createdAt = new Date().toISOString();
-    const newRecords: ProjectFile[] = Array.from(fileList).map((file) => ({
-      id: createUniqueId("file"),
-      name: file.name,
-      size: file.size,
-      mimeType: file.type || "Unknown type",
-      group: allowDeliverables ? targetGroup : "upload",
-      createdAt,
-    }));
+    const newRecords: ProjectFile[] = Array.from(fileList)
+      .map((file) => {
+        const filename = file.name.trim();
+        if (filename.length === 0) {
+          return null;
+        }
+
+        const createdAt = new Date().toISOString();
+        const nextRecord: ProjectFile = {
+          id: createUniqueId("file"),
+          projectId,
+          type: "other",
+          filename,
+          mimeType: file.type || undefined,
+          sizeBytes: file.size,
+          createdAt,
+          name: filename,
+          size: file.size,
+          group: "upload",
+        };
+        return nextRecord;
+      })
+      .filter((file): file is ProjectFile => file !== null);
 
     if (newRecords.length > 0) {
       setWorkspaceFiles((previousFiles) => [...newRecords, ...previousFiles]);
       void onAddFiles(
         projectId,
         newRecords.map((record) => ({
-          name: record.name,
-          size: record.size,
+          filename: record.filename,
+          sizeBytes: record.sizeBytes,
           mimeType: record.mimeType,
-          group: record.group,
+          type: record.type,
         })),
       );
     }
@@ -113,6 +190,13 @@ export default function FilePanel({ projectId, projectStatus, files, onAddFiles 
     setWorkspaceFiles((previousFiles) => previousFiles.filter((file) => file.id !== id));
   };
 
+  const downloadDeliverable = (file: ProjectFile) => {
+    const version = file.version ?? 1;
+    const projectTitle = resolveProjectTitle(projectId);
+    const fileContent = `Snap Plan Designs - Deliverable v${version} - ${projectTitle}`;
+    downloadTextAsFile(toDownloadFilename(getFileName(file)), fileContent);
+  };
+
   const saveRequestNote = () => {
     const trimmedNote = requestNote.trim();
     if (trimmedNote.length === 0) {
@@ -134,7 +218,7 @@ export default function FilePanel({ projectId, projectStatus, files, onAddFiles 
       <header className="workspace-panel__header">
         <h2 className="workspace-panel__title">Files</h2>
         <p className="workspace-panel__subtitle">
-          Manage references, mark deliverables, and keep the project folio complete.
+          Organize inputs and track versioned deliverables in one folio.
         </p>
       </header>
 
@@ -164,30 +248,6 @@ export default function FilePanel({ projectId, projectStatus, files, onAddFiles 
           <p className="file-panel__drop-title">Drag files into the folio</p>
           <p className="file-panel__drop-hint">PDF, JPG, and PNG files are recommended.</p>
 
-          {allowDeliverables ? (
-            <fieldset className="file-panel__target-group">
-              <legend className="file-panel__target-legend">Add files to</legend>
-              <label className="file-panel__target-option">
-                <input
-                  checked={targetGroup === "upload"}
-                  name="file-target-group"
-                  onChange={() => setTargetGroup("upload")}
-                  type="radio"
-                />
-                Uploads
-              </label>
-              <label className="file-panel__target-option">
-                <input
-                  checked={targetGroup === "deliverable"}
-                  name="file-target-group"
-                  onChange={() => setTargetGroup("deliverable")}
-                  type="radio"
-                />
-                Deliverables
-              </label>
-            </fieldset>
-          ) : null}
-
           <Button
             aria-label="Choose files from your computer"
             onClick={() => fileInputRef.current?.click()}
@@ -201,21 +261,24 @@ export default function FilePanel({ projectId, projectStatus, files, onAddFiles 
 
       <div className="file-panel__groups">
         <section className="file-panel__group" aria-label="Upload files">
-          <h3 className="file-panel__group-title">Uploads</h3>
-          {uploadFiles.length === 0 ? (
-            <p className="file-panel__empty">No upload files yet.</p>
+          <h3 className="file-panel__group-title">Inputs</h3>
+          {inputFiles.length === 0 ? (
+            <p className="file-panel__empty">No input files yet.</p>
           ) : (
             <ul className="file-panel__list">
-              {uploadFiles.map((file) => (
+              {inputFiles.map((file) => (
                 <li className="file-panel__item" key={file.id}>
                   <div className="file-panel__item-meta">
-                    <p className="file-panel__item-name">{file.name}</p>
+                    <p className="file-panel__item-name">
+                      <strong>{getFileName(file)}</strong>
+                    </p>
                     <p className="file-panel__item-detail">
-                      {file.mimeType} • {formatFileSize(file.size)}
+                      {formatFileDate(file.createdAt)} • {formatFileSize(getFileSizeBytes(file))} •{" "}
+                      {formatInputType(file.type)}
                     </p>
                   </div>
                   <Button
-                    aria-label={`Remove ${file.name}`}
+                    aria-label={`Remove ${getFileName(file)}`}
                     className="file-panel__remove"
                     onClick={() => removeFile(file.id)}
                     type="button"
@@ -229,36 +292,41 @@ export default function FilePanel({ projectId, projectStatus, files, onAddFiles 
           )}
         </section>
 
-        {allowDeliverables ? (
-          <section className="file-panel__group" aria-label="Deliverable files">
-            <h3 className="file-panel__group-title">Deliverables</h3>
-            {deliverableFiles.length === 0 ? (
-              <p className="file-panel__empty">No deliverables uploaded yet.</p>
-            ) : (
-              <ul className="file-panel__list">
-                {deliverableFiles.map((file) => (
-                  <li className="file-panel__item" key={file.id}>
-                    <div className="file-panel__item-meta">
-                      <p className="file-panel__item-name">{file.name}</p>
-                      <p className="file-panel__item-detail">
-                        {file.mimeType} • {formatFileSize(file.size)}
-                      </p>
-                    </div>
-                    <Button
-                      aria-label={`Remove ${file.name}`}
-                      className="file-panel__remove"
-                      onClick={() => removeFile(file.id)}
-                      type="button"
-                      variant="ghost"
-                    >
-                      Remove
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        ) : null}
+        <section className="file-panel__group" aria-label="Deliverable files">
+          <h3 className="file-panel__group-title">Deliverables</h3>
+          {deliverableFiles.length === 0 ? (
+            <p className="file-panel__empty">
+              {isDeliveredProject
+                ? "No deliverables uploaded yet."
+                : "Deliverables appear here after studio release."}
+            </p>
+          ) : (
+            <ul className="file-panel__list">
+              {deliverableFiles.map((file) => (
+                <li className="file-panel__item" key={file.id}>
+                  <div className="file-panel__item-meta">
+                    <p className="file-panel__item-name">
+                      <strong>{getFileName(file)}</strong> • v{file.version ?? 1}
+                      {file.isCurrent ? " • Current" : ""}
+                    </p>
+                    <p className="file-panel__item-detail">
+                      {formatFileDate(file.createdAt)} • {formatFileSize(getFileSizeBytes(file))}
+                    </p>
+                  </div>
+                  <Button
+                    aria-label={`Download ${getFileName(file)}`}
+                    className="file-panel__remove"
+                    onClick={() => downloadDeliverable(file)}
+                    type="button"
+                    variant="ghost"
+                  >
+                    Download
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
 
       <section className="file-panel__request" aria-label="Request deliverable upload note">

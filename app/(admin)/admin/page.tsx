@@ -6,6 +6,7 @@ import Link from "next/link";
 import ProjectStatusPill from "@/components/projects/ProjectStatusPill";
 import { getProjects } from "@/lib/data/client";
 import type { Project } from "@/lib/data/types";
+import { adminProject } from "@/lib/routes";
 
 const STATUS_PRIORITY: Record<Project["status"], number> = {
   submitted: 0,
@@ -118,7 +119,7 @@ export default function AdminPage() {
                   <Link
                     aria-label={`Open admin workspace for ${project.title}`}
                     className="button button--ghost admin-ledger__open"
-                    href={`/admin/projects/${project.id}`}
+                    href={adminProject(project.id)}
                   >
                     Open
                   </Link>

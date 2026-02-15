@@ -9,6 +9,7 @@ import WizardShell from "@/components/intake/WizardShell";
 import Button from "@/components/ui/Button";
 import { createProjectDraft, getProjectById, submitIntake, type SubmitIntakePayload } from "@/lib/data/client";
 import type { ProjectFileInput } from "@/lib/data/types";
+import { project } from "@/lib/routes";
 
 type PropertyType = "" | "remodel" | "basement" | "addition" | "other";
 
@@ -402,7 +403,7 @@ export default function NewProjectPage() {
         window.clearTimeout(redirectTimerRef.current);
       }
       redirectTimerRef.current = window.setTimeout(() => {
-        router.push(`/app/projects/${projectId}`);
+        router.push(project(projectId));
       }, REDIRECT_DELAY_MS);
     } catch (error) {
       dispatch({

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { appHome } from "@/lib/routes";
 import { modeLabel } from "@/lib/runtime/mode";
 
 type AppShellProps = Readonly<{
@@ -20,12 +21,12 @@ export default function AppShell({ children }: AppShellProps) {
           <Link
             aria-label="Snap Plan Designs home"
             className="app-shell__wordmark"
-            href="/app"
+            href={appHome()}
           >
             Snap Plan Designs
           </Link>
           <nav aria-label="Primary navigation" className="app-shell__nav">
-            <Link className="app-shell__nav-link" href="/app">
+            <Link className="app-shell__nav-link" href={appHome()}>
               Projects
             </Link>
             <Link className="app-shell__nav-link" href="/login">

@@ -1,7 +1,11 @@
 import { mockProjectDetails, mockProjects } from "@/lib/data/mock";
 import {
-  fetchProjectBundle,
-  fetchProjects as fetchLiveProjects,
+  createProjectForUser,
+  fetchProjectBundleForUser,
+  fetchProjectsForUser,
+  getAuthenticatedUserId,
+  updateProjectForUser,
+  updateProjectStatusForUser,
 } from "@/lib/data/supabase";
 import type {
   CreateProjectDraftInput,
@@ -15,6 +19,7 @@ import type {
   ProjectFile,
   ProjectFileGroup,
   ProjectFileInput,
+  ProjectFileType,
   Revision,
   RevisionStatus,
 } from "@/lib/data/types";
@@ -160,22 +165,70 @@ function markProjectUpdated(projectId: string, isoTimestamp: string): void {
   upsertProject(updatedProject);
 }
 
+function toProjectFileGroup(type: ProjectFileType): ProjectFileGroup {
+  return type === "deliverable" ? "deliverable" : "upload";
+}
+
+function normalizeFileName(file: ProjectFileInput): string {
+  return normalizeText(file.filename ?? file.name ?? "");
+}
+
+function normalizeFileSizeBytes(file: Pick<ProjectFileInput, "sizeBytes" | "size">): number | undefined {
+  const rawSize = file.sizeBytes ?? file.size;
+  if (rawSize === undefined || Number.isNaN(rawSize)) {
+    return undefined;
+  }
+  return Math.max(0, rawSize);
+}
+
+function normalizeFileType(file: ProjectFileInput, fallbackType: ProjectFileType): ProjectFileType {
+  if (file.type) {
+    return file.type;
+  }
+  if (file.group === "deliverable") {
+    return "deliverable";
+  }
+  return fallbackType;
+}
+
+function isDeliverableFile(file: ProjectFile): boolean {
+  return file.type === "deliverable" || file.group === "deliverable";
+}
+
 function normalizeIncomingFiles(
   files: ProjectFileInput[],
-  fallbackGroup: ProjectFileGroup,
+  projectId: string,
+  fallbackType: ProjectFileType,
 ): ProjectFile[] {
-  const createdAt = new Date().toISOString();
+  const nextFiles: ProjectFile[] = [];
 
-  return files
-    .filter((file) => normalizeText(file.name).length > 0)
-    .map((file) => ({
+  for (const file of files) {
+    const filename = normalizeFileName(file);
+    if (filename.length === 0) {
+      continue;
+    }
+
+    const createdAt = new Date().toISOString();
+    const type = normalizeFileType(file, fallbackType);
+    const sizeBytes = normalizeFileSizeBytes(file);
+    const mimeType = normalizeText(file.mimeType ?? "");
+    const group = toProjectFileGroup(type);
+    const nextFile: ProjectFile = {
       id: createEntityId("file"),
-      name: normalizeText(file.name),
-      size: Math.max(0, file.size),
-      mimeType: normalizeText(file.mimeType ?? "Unknown type") || "Unknown type",
-      group: file.group ?? fallbackGroup,
+      projectId,
+      type,
+      filename,
+      mimeType: mimeType.length > 0 ? mimeType : undefined,
+      sizeBytes,
       createdAt,
-    }));
+      name: filename,
+      size: sizeBytes ?? 0,
+      group,
+    };
+    nextFiles.push(nextFile);
+  }
+
+  return nextFiles;
 }
 
 function buildSummaryFromIntakeInput(
@@ -294,7 +347,8 @@ export async function getProjects(): Promise<Project[]> {
   }
 
   try {
-    const projects = await fetchLiveProjects();
+    const userId = await getAuthenticatedUserId();
+    const projects = await fetchProjectsForUser(userId);
     clearDataError();
     return projects;
   } catch (error) {
@@ -323,7 +377,8 @@ export async function getProjectById(id: string): Promise<ProjectDetails | null>
   }
 
   try {
-    const bundle = await fetchProjectBundle(id);
+    const userId = await getAuthenticatedUserId();
+    const bundle = await fetchProjectBundleForUser(userId, id);
     if (!bundle.project) {
       clearDataError();
       return null;
@@ -384,6 +439,18 @@ export async function markProjectRead(projectId: string): Promise<Project | null
  * Edge case: blank title/location inputs are normalized to safe fallback labels.
  */
 export async function createProjectDraft(input: CreateProjectDraftInput): Promise<Project> {
+  if (!isDemoMode()) {
+    try {
+      const userId = await getAuthenticatedUserId();
+      const createdProject = await createProjectForUser(userId, input);
+      clearDataError();
+      return createdProject;
+    } catch (error) {
+      setDataError(error);
+      throw error;
+    }
+  }
+
   ensureLiveModeUnsupported();
 
   const nowIsoTimestamp = new Date().toISOString();
@@ -404,7 +471,7 @@ export async function createProjectDraft(input: CreateProjectDraftInput): Promis
     packageDetails: { ...DEFAULT_PACKAGE_DETAILS },
     messages: [],
     revisions: [],
-    files: normalizeIncomingFiles(input.files ?? [], "upload"),
+    files: normalizeIncomingFiles(input.files ?? [], createdProject.id, "existing_plan"),
   };
 
   demoProjectDetailsState = {
@@ -470,6 +537,48 @@ export async function submitIntake(
   projectId: string,
   intakePayload: SubmitIntakePayload,
 ): Promise<ProjectDetails | null> {
+  if (!isDemoMode()) {
+    try {
+      const userId = await getAuthenticatedUserId();
+      const nextSummary = buildSummaryFromIntakeInput(intakePayload);
+      const nextLocation =
+        intakePayload.city !== undefined || intakePayload.state !== undefined
+          ? toLocation(intakePayload.city ?? "", intakePayload.state ?? "")
+          : undefined;
+      const normalizedTitle = intakePayload.title?.trim();
+      const normalizedPropertyType = intakePayload.propertyType?.trim();
+
+      const updatedProject = await updateProjectForUser(userId, projectId, {
+        title: normalizedTitle && normalizedTitle.length > 0 ? normalizedTitle : undefined,
+        location: nextLocation,
+        property_type:
+          normalizedPropertyType && normalizedPropertyType.length > 0
+            ? toTitleCase(normalizedPropertyType)
+            : undefined,
+        status: "submitted",
+        intake_summary: JSON.stringify(nextSummary),
+      });
+
+      if (!updatedProject) {
+        clearDataError();
+        return null;
+      }
+
+      clearDataError();
+      return {
+        project: updatedProject,
+        summary: nextSummary,
+        packageDetails: { ...DEFAULT_PACKAGE_DETAILS },
+        messages: [],
+        revisions: [],
+        files: [],
+      };
+    } catch (error) {
+      setDataError(error);
+      throw error;
+    }
+  }
+
   ensureLiveModeUnsupported();
 
   const projectDetails = demoProjectDetailsState[projectId];
@@ -483,7 +592,11 @@ export async function submitIntake(
     intakePayload.city !== undefined || intakePayload.state !== undefined
       ? toLocation(intakePayload.city ?? "", intakePayload.state ?? "")
       : projectDetails.project.location;
-  const nextUploadFiles = normalizeIncomingFiles(intakePayload.files ?? [], "upload");
+  const nextUploadFiles = normalizeIncomingFiles(
+    intakePayload.files ?? [],
+    projectId,
+    "existing_plan",
+  );
   const nowIsoTimestamp = new Date().toISOString();
   const nextProject: Project = {
     ...projectDetails.project,
@@ -598,28 +711,36 @@ export async function addFiles(projectId: string, files: ProjectFileInput[]): Pr
     return [];
   }
 
-  const defaultGroup: ProjectFileGroup =
-    projectDetails.project.status === "delivered" ? "deliverable" : "upload";
-  const nextFiles = normalizeIncomingFiles(files, defaultGroup);
+  const deliverableInputs = files.filter(
+    (file) => normalizeFileType(file, "other") === "deliverable",
+  );
+  const inputFiles = normalizeIncomingFiles(
+    files.filter((file) => normalizeFileType(file, "other") !== "deliverable"),
+    projectId,
+    "other",
+  );
 
-  if (nextFiles.length === 0) {
-    return projectDetails.files.map(cloneProjectFile);
+  if (inputFiles.length > 0) {
+    const currentDetails = demoProjectDetailsState[projectId];
+    if (currentDetails) {
+      demoProjectDetailsState[projectId] = {
+        ...currentDetails,
+        files: [...inputFiles, ...currentDetails.files],
+      };
+      markProjectUpdated(projectId, inputFiles[0].createdAt);
+    }
   }
 
-  demoProjectDetailsState[projectId] = {
-    ...projectDetails,
-    files: [...nextFiles, ...projectDetails.files],
-  };
-
-  markProjectUpdated(projectId, nextFiles[0].createdAt);
-  const hasExplicitDeliverable = files.some((file) => file.group === "deliverable");
-  if (hasExplicitDeliverable) {
-    appendSystemMessage(projectId, "Deliverables uploaded.", {
-      event: "deliverable_uploaded",
-    });
+  for (const deliverableInput of deliverableInputs) {
+    await addDeliverable(projectId, deliverableInput);
   }
 
-  return demoProjectDetailsState[projectId].files.map(cloneProjectFile);
+  const nextDetails = demoProjectDetailsState[projectId];
+  if (!nextDetails) {
+    return [];
+  }
+
+  return nextDetails.files.map(cloneProjectFile);
 }
 
 /**
@@ -630,6 +751,18 @@ export async function setProjectStatus(
   projectId: string,
   status: Project["status"],
 ): Promise<Project | null> {
+  if (!isDemoMode()) {
+    try {
+      const userId = await getAuthenticatedUserId();
+      const nextProject = await updateProjectStatusForUser(userId, projectId, status);
+      clearDataError();
+      return nextProject;
+    } catch (error) {
+      setDataError(error);
+      return null;
+    }
+  }
+
   ensureLiveModeUnsupported();
 
   const projectDetails = demoProjectDetailsState[projectId];
@@ -669,9 +802,14 @@ export async function setProjectStatus(
  * Adds a deliverable file metadata record and marks the project as delivered.
  * Edge case: empty file names are ignored and return null.
  */
+export async function addDeliverable(projectId: string, filename: string): Promise<ProjectFile | null>;
 export async function addDeliverable(
   projectId: string,
   fileMeta: ProjectFileInput,
+): Promise<ProjectFile | null>;
+export async function addDeliverable(
+  projectId: string,
+  deliverable: string | ProjectFileInput,
 ): Promise<ProjectFile | null> {
   ensureLiveModeUnsupported();
 
@@ -680,26 +818,59 @@ export async function addDeliverable(
     return null;
   }
 
-  const [nextDeliverable] = normalizeIncomingFiles([{ ...fileMeta, group: "deliverable" }], "deliverable");
-  if (!nextDeliverable) {
+  const normalizedInput =
+    typeof deliverable === "string" ? { filename: deliverable } : deliverable;
+  const filename = normalizeFileName(normalizedInput);
+  if (filename.length === 0) {
     return null;
   }
+
+  const sizeBytes = normalizeFileSizeBytes(normalizedInput);
+  const mimeType = normalizeText(normalizedInput.mimeType ?? "");
+  const previousDeliverables = projectDetails.files.filter(isDeliverableFile);
+  const maxKnownVersion = previousDeliverables.reduce(
+    (currentMax, file) => Math.max(currentMax, file.version ?? 0),
+    0,
+  );
+  const nextVersion =
+    maxKnownVersion > 0 ? maxKnownVersion + 1 : previousDeliverables.length + 1;
+  const createdAt = new Date().toISOString();
+
+  const nextDeliverable: ProjectFile = {
+    id: createEntityId("file"),
+    projectId,
+    type: "deliverable",
+    filename,
+    mimeType: mimeType.length > 0 ? mimeType : undefined,
+    sizeBytes,
+    createdAt,
+    version: nextVersion,
+    isCurrent: true,
+    name: filename,
+    size: sizeBytes ?? 0,
+    group: "deliverable",
+  };
 
   const previousStatus = projectDetails.project.status;
   const nextProject: Project = {
     ...projectDetails.project,
     status: "delivered",
-    updatedAt: formatUpdatedAt(nextDeliverable.createdAt),
+    updatedAt: formatUpdatedAt(createdAt),
   };
+
+  const nextFiles = projectDetails.files.map((file) =>
+    isDeliverableFile(file) ? { ...file, isCurrent: false } : file,
+  );
+
   const nextDetails: ProjectDetails = {
     ...projectDetails,
     project: nextProject,
-    files: [nextDeliverable, ...projectDetails.files],
+    files: [nextDeliverable, ...nextFiles],
   };
 
   demoProjectDetailsState[projectId] = nextDetails;
   upsertProject(nextProject);
-  appendSystemMessage(projectId, "Deliverables uploaded.", {
+  appendSystemMessage(projectId, `Deliverable v${nextVersion} uploaded: ${filename}`, {
     event: "deliverable_uploaded",
     from: previousStatus,
     to: "delivered",

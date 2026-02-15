@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 
 import Button from "@/components/ui/Button";
+import { appHome } from "@/lib/routes";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 function sanitizeNextPath(nextPath: string | null): string {
   if (!nextPath || !nextPath.startsWith("/")) {
-    return "/app";
+    return appHome();
   }
 
   return nextPath;
@@ -17,7 +18,7 @@ function sanitizeNextPath(nextPath: string | null): string {
 
 function getNextPathFromLocation(): string {
   if (typeof window === "undefined") {
-    return "/app";
+    return appHome();
   }
 
   const params = new URLSearchParams(window.location.search);
@@ -52,6 +53,51 @@ export default function LoginPage() {
       setErrorMessage(error.message);
       setIsSubmitting(false);
       return;
+    }
+
+    const { data: authData, error: authUserError } = await supabase.auth.getUser();
+    if (authUserError) {
+      setErrorMessage(authUserError.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    const authenticatedUser = authData.user;
+    if (!authenticatedUser) {
+      setErrorMessage("No authenticated user session was found.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { data: existingProfile, error: profileLookupError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", authenticatedUser.id)
+      .maybeSingle();
+
+    if (profileLookupError) {
+      setErrorMessage(profileLookupError.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!existingProfile) {
+      const fullName =
+        typeof authenticatedUser.user_metadata?.full_name === "string"
+          ? authenticatedUser.user_metadata.full_name
+          : null;
+      const { error: profileInsertError } = await supabase.from("profiles").insert({
+        id: authenticatedUser.id,
+        role: "client",
+        full_name: fullName,
+        email: authenticatedUser.email ?? email,
+      });
+
+      if (profileInsertError) {
+        setErrorMessage(profileInsertError.message);
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     router.push(getNextPathFromLocation());

@@ -5,6 +5,7 @@ import Hero from "@/components/marketing/Hero";
 import PlanSpecimen from "@/components/marketing/PlanSpecimen";
 import PricingTable from "@/components/marketing/PricingTable";
 import Section from "@/components/marketing/Section";
+import { appHome } from "@/lib/routes";
 
 export default function MarketingPage() {
   return (
@@ -18,7 +19,7 @@ export default function MarketingPage() {
             <Link aria-label="Log in" className="mk-link-underline" href="/login">
               Log in
             </Link>
-            <Link aria-label="Start a project" className="mk-link-underline" href="/app">
+            <Link aria-label="Start a project" className="mk-link-underline" href={appHome()}>
               Start
             </Link>
           </nav>
@@ -86,7 +87,11 @@ export default function MarketingPage() {
 
         <section className="mk-final-cta reveal reveal--4" aria-label="Final call to action">
           <h2 className="mk-final-cta__title">Clarity first. Costly decisions second.</h2>
-          <Link aria-label="Start a project from final call to action" className="mk-cta mk-cta--primary" href="/app">
+          <Link
+            aria-label="Start a project from final call to action"
+            className="mk-cta mk-cta--primary"
+            href={appHome()}
+          >
             Start a Project
           </Link>
           <p className="mk-final-cta__subtext">Remote. Fast. Built for real execution.</p>
