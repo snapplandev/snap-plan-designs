@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f4ee;
+  --foreground: #1f1f1f;
+  --surface: #ffffff;
+  --surface-muted: #f0ebe0;
+  --primary: #b1512d;
+  --primary-foreground: #fffdf9;
+  --border: #ddd4c4;
+  --ring: #b1512d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at 15% 0%, #fff4e8 0%, transparent 38%),
+    radial-gradient(circle at 90% 10%, #f7efe3 0%, transparent 38%),
+    var(--background);
+  color: var(--foreground);
+}
+
+a {
+  color: inherit;
+}
+
+.container-shell {
+  margin: 0 auto;
+  width: min(1120px, calc(100% - 2rem));
+}
+
+.card-surface {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}

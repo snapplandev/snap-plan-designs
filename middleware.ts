@@ -1,64 +1,65 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { adminHome, appHome, login } from "@/lib/routes";
-import { getSupabaseEnv, hasSupabaseEnv } from "@/lib/supabase/env";
+function requiresAuth(pathname: string): boolean {
+  return pathname.startsWith("/portal") || pathname.startsWith("/admin");
+}
 
-function redirectToLogin(request: NextRequest): NextResponse {
+function buildLoginRedirect(request: NextRequest): NextResponse {
   const loginUrl = request.nextUrl.clone();
-  loginUrl.pathname = login();
+  loginUrl.pathname = "/login";
   loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   return NextResponse.redirect(loginUrl);
 }
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  if (!hasSupabaseEnv()) {
+  if (!requiresAuth(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
 
-  const supabaseEnv = getSupabaseEnv();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseEnv) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     return NextResponse.next();
   }
 
   const response = NextResponse.next({ request });
-
-  const supabase = createServerClient(supabaseEnv.url, supabaseEnv.anonKey, {
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        for (const cookie of cookiesToSet) {
-          request.cookies.set(cookie.name, cookie.value);
-          response.cookies.set(cookie.name, cookie.value, cookie.options);
-        }
+        cookiesToSet.forEach(({ name, value, options }) => {
+          request.cookies.set(name, value);
+          response.cookies.set(name, value, options);
+        });
       },
     },
   });
 
   const {
     data: { user },
-    error: authError,
+    error,
   } = await supabase.auth.getUser();
 
-  if (authError || !user) {
-    return redirectToLogin(request);
+  if (error || !user) {
+    return buildLoginRedirect(request);
   }
 
-  if (request.nextUrl.pathname.startsWith(adminHome())) {
-    const { data: profile, error: profileError } = await supabase
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
-      .maybeSingle();
+      .maybeSingle<{ role: string }>();
 
-    if (profileError || profile?.role !== "admin") {
-      const appUrl = request.nextUrl.clone();
-      appUrl.pathname = appHome();
-      appUrl.search = "";
-      return NextResponse.redirect(appUrl);
+    if (profile?.role !== "admin") {
+      const portalUrl = request.nextUrl.clone();
+      portalUrl.pathname = "/portal";
+      portalUrl.search = "";
+      return NextResponse.redirect(portalUrl);
     }
   }
 
@@ -66,5 +67,5 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/admin/:path*"],
+  matcher: ["/portal/:path*", "/admin/:path*"],
 };
