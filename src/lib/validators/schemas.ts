@@ -55,3 +55,18 @@ export const deliverableSchema = z.object({
   fileName: z.string().min(1).max(220),
   mimeType: z.string().min(1).max(120),
 });
+
+export const profileUpdateSchema = z.object({
+  fullName: z.string().min(2).max(100).optional(),
+  preferences: z
+    .object({
+      theme: z.enum(["light", "dark", "system"]).optional(),
+      notifications: z
+        .object({
+          email: z.boolean().optional(),
+          push: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+});

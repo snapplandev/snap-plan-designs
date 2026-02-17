@@ -7,6 +7,8 @@ import { UploadDropzone } from "@/components/portal/UploadDropzone";
 import { getProjectForUser } from "@/lib/db/queries";
 import { requireUser } from "@/lib/auth/server";
 import type { ProjectStatus } from "@/types/domain";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 type MessageRecord = {
   id: string;
@@ -39,22 +41,51 @@ export default async function ProjectWorkspacePage({ params }: { params: Promise
   const deliverables = (data.deliverables ?? []) as DeliverableRecord[];
 
   return (
-    <main className="container-shell py-8" aria-label="Project workspace page">
-      <h1 className="text-4xl font-semibold tracking-tight">{data.title}</h1>
-      <p className="mt-2 text-neutral-700">{data.scope_summary}</p>
+    <div className="grid gap-12" aria-label="Project workspace">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-4">
+          <Badge variant={data.status === "delivered" ? "success" : "secondary"}>
+            {(data.status as string).replace("_", " ")}
+          </Badge>
+          <h1 className="text-display-lg font-bold tracking-tight text-primary">
+            {data.title}
+          </h1>
+          <p className="max-w-xl text-body-lg text-text-secondary leading-relaxed font-medium">
+            {data.scope_summary}
+          </p>
+        </div>
+        <div className="flex gap-4">
+          <Card variant="outlined" className="p-4 flex flex-col min-w-[120px]">
+            <span className="text-caption font-bold uppercase tracking-widest text-text-secondary">Type</span>
+            <span className="text-body-md font-bold text-primary mt-1">{data.property_type ?? "Residential"}</span>
+          </Card>
+          <Card variant="outlined" className="p-4 flex flex-col min-w-[120px]">
+            <span className="text-caption font-bold uppercase tracking-widest text-text-secondary">Created</span>
+            <span className="text-body-md font-bold text-primary mt-1">{new Date(data.created_at).toLocaleDateString()}</span>
+          </Card>
+        </div>
+      </header>
 
-      <section className="mt-6">
+      <section>
         <StatusStepper status={data.status as ProjectStatus} />
       </section>
 
-      <section className="mt-6 grid gap-4 lg:grid-cols-2">
-        <UploadDropzone projectId={data.id} />
-        <DeliverablesList deliverables={deliverables} />
-      </section>
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-8">
+          <section>
+            <MessageThread initialMessages={messages} projectId={data.id} />
+          </section>
+        </div>
 
-      <section className="mt-6">
-        <MessageThread initialMessages={messages} projectId={data.id} />
-      </section>
-    </main>
+        <aside className="space-y-8">
+          <section>
+            <DeliverablesList deliverables={deliverables} />
+          </section>
+          <section>
+            <UploadDropzone projectId={data.id} />
+          </section>
+        </aside>
+      </div>
+    </div>
   );
 }

@@ -36,3 +36,30 @@ export type ProjectSummary = {
   address_city: string | null;
   address_state: string | null;
 };
+
+export type Project = ProjectSummary & {
+  property_type: string | null;
+  scope_summary: string | null;
+  user_id: string;
+  package_id: string | null;
+  updated_at: string;
+};
+
+export type UserPreferences = {
+  theme: "light" | "dark" | "system";
+  notifications: {
+    email: boolean;
+    push: boolean;
+  };
+};
+
+export type NotificationType = "project_update" | "new_message" | "system_alert";
+
+export type Notification = {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  data: Record<string, unknown>;
+  read_at: string | null;
+  created_at: string;
+};

@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+
 const galleryItems = [
   "Kitchen Remodel Draft",
   "Basement Reflow Layout",
@@ -9,14 +11,14 @@ const galleryItems = [
 
 export function GalleryGrid() {
   return (
-    <section className="container-shell py-16" aria-label="Example gallery">
-      <h2 className="text-3xl font-semibold tracking-tight">Example outputs</h2>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="main-container py-24" aria-label="Example gallery">
+      <h2 className="text-display-sm font-bold text-text-primary">Example outputs</h2>
+      <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {galleryItems.map((item) => (
-          <article className="card-surface rounded-2xl p-5" key={item}>
-            <div className="aspect-[4/3] rounded-xl bg-[var(--surface-muted)]" />
-            <h3 className="mt-3 text-base font-medium">{item}</h3>
-          </article>
+          <Card variant="interactive" className="p-6 flex flex-col group" key={item}>
+            <div className="aspect-[4/3] rounded-xl bg-surface-alt border border-border/50 transition-all group-hover:bg-surface-alt/80" />
+            <h3 className="mt-5 text-heading-sm font-bold text-text-primary leading-tight">{item}</h3>
+          </Card>
         ))}
       </div>
     </section>

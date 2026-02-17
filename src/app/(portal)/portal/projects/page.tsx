@@ -7,11 +7,11 @@ export default async function PortalProjectsPage() {
   const projects = await listUserProjects(user.id);
 
   return (
-    <main className="container-shell py-8" aria-label="Projects page">
-      <h1 className="text-4xl font-semibold tracking-tight">Projects</h1>
-      <div className="mt-6">
+    <div aria-label="Projects page">
+      <h1 className="text-heading-xl font-bold tracking-tight text-[var(--color-primary)]">Projects</h1>
+      <div className="mt-10">
         <ProjectsTable projects={projects} />
       </div>
-    </main>
+    </div>
   );
 }

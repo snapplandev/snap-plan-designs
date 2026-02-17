@@ -59,25 +59,44 @@ export function UploadDropzone({ projectId }: { projectId: string }) {
   };
 
   return (
-    <section className="rounded-2xl border border-dashed border-[var(--border)] bg-white p-5" aria-label="Upload assets">
-      <Label htmlFor="asset-upload">Upload project assets</Label>
-      <p className="mt-1 text-sm text-neutral-600">Upload sketches, photos, and references (up to 50MB each).</p>
-      <input
-        aria-label="Upload project files"
-        className="mt-4 block w-full text-sm"
-        id="asset-upload"
-        multiple
-        onChange={(event) => {
-          void handleFiles(event.currentTarget.files);
-        }}
-        type="file"
-      />
-      <div className="mt-4">
-        <Button aria-label="Upload selected files" disabled={isUploading} type="button">
-          {isUploading ? "Uploading..." : "Upload"}
-        </Button>
+    <section className="rounded-2xl border-2 border-dashed border-border/60 bg-surface p-10 transition-all hover:border-primary/40 hover:bg-surface-alt/30" aria-label="Upload assets">
+      <Label className="text-heading-sm font-bold text-text-primary" htmlFor="asset-upload">
+        Upload project assets
+      </Label>
+      <p className="mt-3 text-body-md text-text-secondary leading-relaxed max-w-lg">
+        Upload sketches, photos, and references (up to 50MB each).
+      </p>
+
+      <div className="mt-8">
+        <input
+          aria-label="Upload project files"
+          className="block w-full text-body-md font-medium text-text-secondary file:mr-6 file:rounded-full file:border-0 file:bg-surface-alt file:px-6 file:py-2.5 file:text-caption file:font-bold file:uppercase file:tracking-widest file:text-text-primary hover:file:bg-border/40 transition-all cursor-pointer"
+          id="asset-upload"
+          multiple
+          onChange={(event) => {
+            void handleFiles(event.currentTarget.files);
+          }}
+          type="file"
+        />
       </div>
-      {notice ? <p className="mt-3 text-sm text-neutral-700">{notice}</p> : null}
+
+      <div className="mt-10 flex items-center gap-6">
+        <Button
+          variant="primary"
+          size="md"
+          aria-label="Upload selected files"
+          disabled={isUploading}
+          isLoading={isUploading}
+          type="button"
+        >
+          {isUploading ? "Uploading..." : "Upload Files"}
+        </Button>
+        {notice ? (
+          <p className="text-body-sm font-bold text-primary">
+            {notice}
+          </p>
+        ) : null}
+      </div>
     </section>
   );
 }
